@@ -1,0 +1,318 @@
+/* Auth globe experience layered on top of the shared site stylesheet. */
+.auth-page-globe {
+  margin: 0;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.auth-shell-globe {
+  display: grid;
+  grid-template-columns: minmax(420px, 48%) minmax(0, 52%);
+  width: 100%;
+  min-height: 100vh;
+}
+
+.auth-side {
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 42px clamp(38px, 6vw, 92px);
+  background: #fff;
+}
+
+.auth-content {
+  flex: 1;
+  width: 100%;
+  max-width: 475px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 0 28px;
+}
+
+.auth-context h1 {
+  margin: 0 0 16px;
+  color: var(--green-deep);
+  font-size: clamp(48px, 4vw, 72px);
+  line-height: 0.98;
+}
+
+.auth-context > p {
+  max-width: 390px;
+  margin: 0 0 28px;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.auth-tab {
+  position: relative;
+  border: 0;
+  background: transparent;
+  color: #7b8581;
+  padding: 0 0 13px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.auth-tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--green);
+  transform: scaleX(0);
+  transition: transform .18s ease;
+}
+
+.auth-tab.active { color: var(--green); }
+.auth-tab.active::after { transform: scaleX(1); }
+
+.auth-tab:focus-visible,
+.auth-provider:focus-visible,
+.auth-submit:focus-visible,
+#auth-form input:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.auth-providers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.auth-provider {
+  min-height: 50px;
+  border: 1px solid #d9dfdc;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--green-deep);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.provider-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #f3f1eb;
+  color: var(--green);
+}
+
+.provider-apple { font-size: 11px; }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: #8b9591;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e3e7e5;
+}
+
+.account-recovery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.account-recovery a {
+  color: var(--blue-deep);
+  font-weight: 700;
+}
+
+.global-side {
+  position: relative;
+  min-width: 0;
+  min-height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  color: #fff;
+  background: linear-gradient(145deg, #f48120 0%, #ec6d16 52%, #d8560d 100%);
+}
+
+.global-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 85% 18%, rgba(255,255,255,.16), transparent 26%),
+    radial-gradient(circle at 65% 70%, rgba(255,220,170,.13), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.11));
+}
+
+.global-message {
+  position: absolute;
+  z-index: 10;
+  top: 11%;
+  left: clamp(34px, 6vw, 82px);
+  max-width: 470px;
+  pointer-events: none;
+}
+
+.global-eyebrow {
+  margin-bottom: 18px;
+  color: rgba(255,255,255,.82);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.global-message h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(52px, 5vw, 90px);
+  line-height: .92;
+  letter-spacing: -.055em;
+}
+
+.global-message > p:last-child {
+  max-width: 390px;
+  margin-top: 24px;
+  color: rgba(255,255,255,.86);
+  font-size: 17px;
+}
+
+.globe-stage {
+  position: absolute;
+  z-index: 2;
+  width: min(76vw, 920px);
+  aspect-ratio: 1;
+  right: clamp(-300px, -17vw, -100px);
+  bottom: clamp(-260px, -15vw, -80px);
+  pointer-events: none;
+}
+
+#global-globe {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.globe-marker-label {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity .18s linear;
+}
+
+.marker-pulse {
+  position: relative;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.18);
+}
+
+.marker-pulse::before,
+.marker-pulse::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(255,255,255,.62);
+  border-radius: 50%;
+  animation: locationPulse 2.4s ease-out infinite;
+}
+
+.marker-pulse::after { animation-delay: 1.2s; }
+
+.marker-text {
+  white-space: nowrap;
+  padding: 6px 10px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  background: rgba(133,48,0,.20);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.global-status {
+  position: absolute;
+  z-index: 20;
+  left: clamp(34px, 6vw, 82px);
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  color: rgba(255,255,255,.8);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 5px rgba(255,255,255,.13);
+}
+
+@keyframes locationPulse {
+  0% { opacity: .75; transform: scale(.35); }
+  70%, 100% { opacity: 0; transform: scale(1.5); }
+}
+
+@media (max-width: 1050px) {
+  .auth-shell-globe { grid-template-columns: 52% 48%; }
+  .auth-side { padding-inline: 36px; }
+  .global-message { left: 40px; }
+}
+
+@media (max-width: 760px) {
+  .auth-shell-globe { display: flex; flex-direction: column; }
+  .auth-side { min-height: auto; padding: 28px 24px 38px; }
+  .auth-content { padding: 48px 0 18px; }
+  .auth-providers { grid-template-columns: 1fr; }
+  .global-side { min-height: 520px; }
+  .global-message { top: 44px; left: 26px; right: 26px; }
+  .global-message h2 { font-size: 52px; }
+  .globe-stage { width: 620px; right: -265px; bottom: -220px; }
+  .global-status { left: 26px; bottom: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker-pulse::before,
+  .marker-pulse::after { animation: none !important; }
+}
