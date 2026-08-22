@@ -9,88 +9,104 @@
   <link rel="icon" href="coldwhiteagle.jpg" type="image/jpeg">
   <link rel="apple-touch-icon" href="coldwhiteagle.jpg">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="auth-globe.css">
 </head>
 
-<body class="auth-page">
-  <main class="auth-shell">
-    <section class="auth-panel" aria-labelledby="auth-title">
-      <a class="brand auth-brand" href="index.html" aria-label="Return to Gabo Services home">
-        Gabo Services
-      </a>
+<body class="auth-page auth-page-globe">
+  <main class="auth-shell auth-shell-globe">
+    <section class="auth-side" aria-labelledby="auth-title">
+      <a class="brand auth-brand" href="index.html" aria-label="Return to Gabo Services home">Gabo Services</a>
 
-      <div class="auth-context">
-        <p class="kicker">Secure workspace access</p>
-        <h1 id="auth-title">Welcome back.</h1>
-        <p id="auth-description">
-          Sign in to continue to your Gabo Services workspace.
-        </p>
+      <div class="auth-content">
+        <div class="auth-context">
+          <h1 id="auth-title">Welcome back.</h1>
+          <p id="auth-description">Sign in to continue to your Gabo Services workspace.</p>
 
-        <div class="dashboard-destination" id="dashboard-destination" hidden>
-          <span>Your destination</span>
-          <strong id="dashboard-name"></strong>
+          <div class="dashboard-destination" id="dashboard-destination" hidden>
+            <span>Your destination</span>
+            <strong id="dashboard-name"></strong>
+          </div>
         </div>
 
-        <a class="back-link" href="index.html#plans">
-          <span aria-hidden="true">←</span> Back to dashboards
-        </a>
-      </div>
+        <div class="auth-form-wrap">
+          <div class="auth-tabs" role="tablist" aria-label="Account access">
+            <button class="auth-tab active" id="signin-tab" type="button" role="tab" aria-selected="true" aria-controls="auth-form" tabindex="0">Sign in</button>
+            <button class="auth-tab" id="signup-tab" type="button" role="tab" aria-selected="false" aria-controls="auth-form" tabindex="-1">Create account</button>
+          </div>
 
-      <div class="auth-form-wrap">
-        <div class="auth-tabs" role="tablist" aria-label="Account access">
-          <button class="auth-tab active" id="signin-tab" type="button" role="tab" aria-selected="true" aria-controls="auth-form">
-            Sign in
-          </button>
-          <button class="auth-tab" id="signup-tab" type="button" role="tab" aria-selected="false" aria-controls="auth-form">
-            Create account
-          </button>
+          <div class="auth-providers" id="auth-providers" aria-label="Alternative sign-in methods">
+            <button class="auth-provider" type="button" data-provider="Google">
+              <span class="provider-mark" aria-hidden="true">G</span>
+              Continue with Google
+            </button>
+            <button class="auth-provider" type="button" data-provider="Apple">
+              <span class="provider-mark provider-apple" aria-hidden="true">●</span>
+              Continue with Apple
+            </button>
+          </div>
+
+          <div class="auth-divider" id="auth-divider" aria-hidden="true"><span>or use your email</span></div>
+
+          <form id="auth-form" aria-describedby="auth-description form-note">
+            <div class="name-field" id="name-field" hidden>
+              <label for="full-name">Full name</label>
+              <input id="full-name" name="name" type="text" autocomplete="name">
+            </div>
+
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
+
+            <div class="form-options" id="signin-options">
+              <label class="checkbox-label">
+                <input type="checkbox" name="remember">
+                Remember me
+              </label>
+            </div>
+
+            <button class="button button-gold auth-submit" type="submit">
+              <span id="submit-label">Sign in</span>
+              <span aria-hidden="true">→</span>
+            </button>
+
+            <p class="form-note" id="form-note" aria-live="polite">You will continue to your selected dashboard after signing in.</p>
+          </form>
+
+          <div class="account-recovery" id="account-recovery">
+            <span>Having trouble?</span>
+            <a href="mailto:support@gaboservices.com?subject=Forgot%20my%20email">Forgot my email</a>
+            <span aria-hidden="true">or</span>
+            <a href="mailto:support@gaboservices.com?subject=Forgot%20my%20password">Forgot my password</a>
+          </div>
         </div>
 
-        <form id="auth-form">
-          <div class="name-field" id="name-field" hidden>
-            <label for="full-name">Full name</label>
-            <input id="full-name" name="name" type="text" autocomplete="name">
-          </div>
-
-          <label for="email">Email address</label>
-          <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
-
-          <label for="password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
-
-          <div class="form-options" id="signin-options">
-            <label class="checkbox-label">
-              <input type="checkbox" name="remember">
-              Remember me
-            </label>
-            <a href="mailto:support@gaboservices.com?subject=Password%20reset">Forgot password?</a>
-          </div>
-
-          <button class="button button-gold auth-submit" type="submit">
-            <span id="submit-label">Sign in</span>
-            <span aria-hidden="true">→</span>
-          </button>
-
-          <p class="form-note" id="form-note" aria-live="polite">
-            You will continue to your selected dashboard after signing in.
-          </p>
-        </form>
+        <a class="back-link" href="index.html#plans"><span aria-hidden="true">←</span> Back to dashboards</a>
       </div>
     </section>
 
-    <aside class="auth-visual" aria-labelledby="visual-title">
-      <canvas id="auth-particles" aria-hidden="true"></canvas>
-      <div class="auth-visual-glow" aria-hidden="true"></div>
-      <div class="auth-visual-content">
-        <p class="auth-visual-eyebrow">Gabo Services</p>
-        <h2 id="visual-title">Work smarter.<br>Operate globally.</h2>
-        <p>One workspace connecting businesses, professionals, services, and customers.</p>
-        <a href="index.html">Explore Gabo Services <span aria-hidden="true">→</span></a>
+    <aside class="global-side" aria-labelledby="global-title">
+      <div class="global-atmosphere" aria-hidden="true"></div>
+      <div class="global-message">
+        <p class="global-eyebrow">Gabo Services</p>
+        <h2 id="global-title">Your business.<br>Connected.</h2>
+        <p>Connecting businesses, professionals, services and customers around the world.</p>
       </div>
-      <p class="auth-visual-note">Built for connected work, wherever it happens.</p>
+
+      <div class="globe-stage" aria-hidden="true">
+        <canvas id="global-globe"></canvas>
+        <div class="globe-marker-label" id="globe-marker-label">
+          <span class="marker-pulse"></span>
+          <span class="marker-text">I'm here · Guayaquil</span>
+        </div>
+      </div>
+
+      <p class="global-status"><span class="status-dot" aria-hidden="true"></span>Globally connected</p>
     </aside>
   </main>
 
   <script src="auth.js" defer></script>
-  <script src="auth-visual.js" defer></script>
+  <script src="auth-globe.js" defer></script>
 </body>
 </html>
