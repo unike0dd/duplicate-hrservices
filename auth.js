@@ -68,6 +68,16 @@ document.addEventListener("DOMContentLoaded", () => {
   signinTab.addEventListener("click", () => setMode("signin"));
   signupTab.addEventListener("click", () => setMode("signup"));
 
+  [signinTab, signupTab].forEach((tab, index, tabs) => {
+    tab.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      const nextIndex = event.key === "ArrowRight" ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+      tabs[nextIndex].focus();
+      tabs[nextIndex].click();
+    });
+  });
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
 
