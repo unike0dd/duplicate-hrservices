@@ -13,11 +13,11 @@
 
 <body class="auth-page">
   <main class="auth-shell">
-    <a class="brand auth-brand" href="index.html" aria-label="Return to Gabo Services home">
-      Gabo Services
-    </a>
-
     <section class="auth-panel" aria-labelledby="auth-title">
+      <a class="brand auth-brand" href="index.html" aria-label="Return to Gabo Services home">
+        Gabo Services
+      </a>
+
       <div class="auth-context">
         <p class="kicker">Secure workspace access</p>
         <h1 id="auth-title">Welcome back.</h1>
@@ -76,8 +76,21 @@
         </form>
       </div>
     </section>
+
+    <aside class="auth-visual" aria-labelledby="visual-title">
+      <canvas id="auth-particles" aria-hidden="true"></canvas>
+      <div class="auth-visual-glow" aria-hidden="true"></div>
+      <div class="auth-visual-content">
+        <p class="auth-visual-eyebrow">Gabo Services</p>
+        <h2 id="visual-title">Work smarter.<br>Operate globally.</h2>
+        <p>One workspace connecting businesses, professionals, services, and customers.</p>
+        <a href="index.html">Explore Gabo Services <span aria-hidden="true">→</span></a>
+      </div>
+      <p class="auth-visual-note">Built for connected work, wherever it happens.</p>
+    </aside>
   </main>
 
   <script src="auth.js" defer></script>
+  <script src="auth-visual.js" defer></script>
 </body>
 </html>
