@@ -1,127 +1,86 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const dashboards = {
-    freelance: {
-      name: "Freelancers",
-      url: "https://unike0dd.github.io/freelance/",
-    },
-    independentHR: {
-      name: "Independent HR",
-      url: "https://unike0dd.github.io/independentHR/",
-    },
-    hrpro: {
-      name: "HR Professional",
-      url: "https://unike0dd.github.io/hrpro/",
-    },
-    smb: {
-      name: "Growing SMBs",
-      url: "https://unike0dd.github.io/smb/",
-    },
-    consumer: {
-      name: "Talent",
-      url: "https://unike0dd.github.io/consumer/",
-    },
-  };
-
-  const params = new URLSearchParams(window.location.search);
-  const destination = dashboards[params.get("dashboard")];
+  "use strict";
   const form = document.querySelector("#auth-form");
-  const signinTab = document.querySelector("#signin-tab");
-  const signupTab = document.querySelector("#signup-tab");
+  const tabs = [...document.querySelectorAll(".auth-tab")];
   const nameField = document.querySelector("#name-field");
   const fullName = document.querySelector("#full-name");
   const email = document.querySelector("#email");
   const password = document.querySelector("#password");
-  const signinOptions = document.querySelector("#signin-options");
+  const toggle = document.querySelector("#password-toggle");
   const title = document.querySelector("#auth-title");
   const description = document.querySelector("#auth-description");
   const submitLabel = document.querySelector("#submit-label");
-  const formNote = document.querySelector("#form-note");
-  const authProviders = document.querySelector("#auth-providers");
-  const authDivider = document.querySelector("#auth-divider");
-  const accountRecovery = document.querySelector("#account-recovery");
-  let mode = params.get("mode") === "signup" ? "signup" : "signin";
+  const note = document.querySelector("#prototype-note");
+  let mode = "signin";
 
-  if (destination) {
-    document.querySelector("#dashboard-name").textContent = destination.name;
-    document.querySelector("#dashboard-destination").hidden = false;
-    document.title = `Sign in to ${destination.name} | Gabo Services`;
+  function clearErrors() {
+    [fullName, email, password].forEach((input) => input.removeAttribute("aria-invalid"));
+    ["name", "email", "password"].forEach((name) => { document.querySelector(`#${name}-error`).textContent = ""; });
   }
 
-  function setMode(nextMode, focusPanel = false) {
+  function setMode(nextMode, focusForm = false) {
     mode = nextMode;
-    const isSignup = mode === "signup";
-
-    signinTab.classList.toggle("active", !isSignup);
-    signinTab.setAttribute("aria-selected", String(!isSignup));
-    signinTab.tabIndex = isSignup ? -1 : 0;
-
-    signupTab.classList.toggle("active", isSignup);
-    signupTab.setAttribute("aria-selected", String(isSignup));
-    signupTab.tabIndex = isSignup ? 0 : -1;
-
-    nameField.hidden = !isSignup;
-    fullName.required = isSignup;
-    password.autocomplete = isSignup ? "new-password" : "current-password";
-    signinOptions.hidden = isSignup;
-    authProviders.hidden = isSignup;
-    authDivider.hidden = isSignup;
-    accountRecovery.hidden = isSignup;
-
-    title.textContent = isSignup ? "Create your account." : "Welcome back.";
-    description.textContent = isSignup
-      ? "Set up your Gabo Services account to access your workspace."
-      : "Sign in to continue to your Gabo Services workspace.";
-    submitLabel.textContent = isSignup ? "Create account" : "Sign in";
-    formNote.textContent = destination
-      ? `You will continue to ${destination.name} after ${isSignup ? "creating your account" : "signing in"}.`
-      : "You can choose a dashboard after accessing your account.";
-
-    if (focusPanel) {
-      (isSignup ? fullName : email).focus();
-    }
+    const signup = mode === "signup";
+    tabs.forEach((tab, index) => {
+      const selected = (index === 1) === signup;
+      tab.classList.toggle("active", selected);
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+    nameField.hidden = !signup;
+    fullName.required = signup;
+    password.autocomplete = signup ? "new-password" : "current-password";
+    title.textContent = signup ? "Create your account." : "Welcome back.";
+    description.textContent = signup ? "Begin your Gabo Services workspace prototype." : "Sign in to continue to your Gabo Services workspace.";
+    submitLabel.textContent = signup ? "Create account" : "Sign in";
+    note.textContent = "Prototype only. No account data is transmitted.";
+    clearErrors();
+    if (focusForm) (signup ? fullName : email).focus();
   }
 
-  signinTab.addEventListener("click", () => setMode("signin"));
-  signupTab.addEventListener("click", () => setMode("signup"));
-
-  [signinTab, signupTab].forEach((tab, index, tabs) => {
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => setMode(index ? "signup" : "signin"));
     tab.addEventListener("keydown", (event) => {
-      const handledKeys = ["ArrowLeft", "ArrowRight", "Home", "End"];
-      if (!handledKeys.includes(event.key)) return;
-
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
-      let nextIndex = index;
-      if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
-      if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
-      if (event.key === "Home") nextIndex = 0;
-      if (event.key === "End") nextIndex = tabs.length - 1;
-
-      tabs[nextIndex].focus();
-      setMode(tabs[nextIndex] === signupTab ? "signup" : "signin");
+      const next = event.key === "Home" || event.key === "ArrowLeft" ? 0 : 1;
+      tabs[next].focus();
+      setMode(next ? "signup" : "signin");
     });
   });
 
-  document.querySelectorAll(".auth-provider").forEach((provider) => {
-    provider.addEventListener("click", () => {
-      formNote.textContent = `${provider.dataset.provider} sign-in is not yet available. Please continue with your email address.`;
-      email.focus();
-    });
+  toggle.addEventListener("click", () => {
+    const showing = password.type === "password";
+    password.type = showing ? "text" : "password";
+    toggle.textContent = showing ? "Hide" : "Show";
+    toggle.setAttribute("aria-pressed", String(showing));
   });
+
+  document.querySelectorAll(".auth-provider").forEach((button) => button.addEventListener("click", () => {
+    note.textContent = `${button.dataset.provider} authentication is disabled in this visual prototype.`;
+  }));
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-
-    if (!form.reportValidity()) {
+    clearErrors();
+    let firstInvalid = null;
+    const checks = mode === "signup" ? [fullName, email, password] : [email, password];
+    checks.forEach((input) => {
+      if (!input.validity.valid) {
+        input.setAttribute("aria-invalid", "true");
+        document.querySelector(`#${input === fullName ? "name" : input.id}-error`).textContent = input === password ? "Enter at least 15 characters." : `Enter a valid ${input === fullName ? "name" : "email address"}.`;
+        firstInvalid ||= input;
+      }
+    });
+    if (firstInvalid) {
+      note.textContent = "Please correct the highlighted fields.";
+      firstInvalid.focus();
       return;
     }
-
-    if (destination) {
-      window.location.assign(destination.url);
-      return;
-    }
-
-    window.location.assign("index.html#plans");
+    /* PROTOTYPE ONLY: never transmit, store, authenticate, create accounts, or redirect. */
+    note.textContent = "Visual prototype validated. No account data was transmitted.";
+    form.reset();
   });
 
-  setMode(mode);
+  setMode("signin");
 });
