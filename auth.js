@@ -29,12 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupTab = document.querySelector("#signup-tab");
   const nameField = document.querySelector("#name-field");
   const fullName = document.querySelector("#full-name");
+  const email = document.querySelector("#email");
   const password = document.querySelector("#password");
   const signinOptions = document.querySelector("#signin-options");
   const title = document.querySelector("#auth-title");
   const description = document.querySelector("#auth-description");
   const submitLabel = document.querySelector("#submit-label");
   const formNote = document.querySelector("#form-note");
+  const authProviders = document.querySelector("#auth-providers");
+  const authDivider = document.querySelector("#auth-divider");
+  const accountRecovery = document.querySelector("#account-recovery");
   let mode = params.get("mode") === "signup" ? "signup" : "signin";
 
   if (destination) {
@@ -43,18 +47,26 @@ document.addEventListener("DOMContentLoaded", () => {
     document.title = `Sign in to ${destination.name} | Gabo Services`;
   }
 
-  function setMode(nextMode) {
+  function setMode(nextMode, focusPanel = false) {
     mode = nextMode;
     const isSignup = mode === "signup";
 
     signinTab.classList.toggle("active", !isSignup);
     signinTab.setAttribute("aria-selected", String(!isSignup));
+    signinTab.tabIndex = isSignup ? -1 : 0;
+
     signupTab.classList.toggle("active", isSignup);
     signupTab.setAttribute("aria-selected", String(isSignup));
+    signupTab.tabIndex = isSignup ? 0 : -1;
+
     nameField.hidden = !isSignup;
     fullName.required = isSignup;
     password.autocomplete = isSignup ? "new-password" : "current-password";
     signinOptions.hidden = isSignup;
+    authProviders.hidden = isSignup;
+    authDivider.hidden = isSignup;
+    accountRecovery.hidden = isSignup;
+
     title.textContent = isSignup ? "Create your account." : "Welcome back.";
     description.textContent = isSignup
       ? "Set up your Gabo Services account to access your workspace."
@@ -63,6 +75,10 @@ document.addEventListener("DOMContentLoaded", () => {
     formNote.textContent = destination
       ? `You will continue to ${destination.name} after ${isSignup ? "creating your account" : "signing in"}.`
       : "You can choose a dashboard after accessing your account.";
+
+    if (focusPanel) {
+      (isSignup ? fullName : email).focus();
+    }
   }
 
   signinTab.addEventListener("click", () => setMode("signin"));
@@ -70,11 +86,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   [signinTab, signupTab].forEach((tab, index, tabs) => {
     tab.addEventListener("keydown", (event) => {
-      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      const handledKeys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+      if (!handledKeys.includes(event.key)) return;
+
       event.preventDefault();
-      const nextIndex = event.key === "ArrowRight" ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+      let nextIndex = index;
+      if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+      if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+      if (event.key === "Home") nextIndex = 0;
+      if (event.key === "End") nextIndex = tabs.length - 1;
+
       tabs[nextIndex].focus();
-      tabs[nextIndex].click();
+      setMode(tabs[nextIndex] === signupTab ? "signup" : "signin");
+    });
+  });
+
+  document.querySelectorAll(".auth-provider").forEach((provider) => {
+    provider.addEventListener("click", () => {
+      formNote.textContent = `${provider.dataset.provider} sign-in is not yet available. Please continue with your email address.`;
+      email.focus();
     });
   });
 
