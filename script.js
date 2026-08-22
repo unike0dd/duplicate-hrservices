@@ -1,12 +1,3 @@
-self.__VINEXT_RSC_PARAMS__ = {};
-
-self.__VINEXT_RSC_NAV__ = {
-  pathname: "/",
-  searchParams: [],
-};
-
-import("/assets/index-C1I_H6U9.js");
-
 document.addEventListener("DOMContentLoaded", () => {
   const mobileMenu = document.querySelector(".mobile-menu");
 

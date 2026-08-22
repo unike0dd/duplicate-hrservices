@@ -560,15 +560,18 @@ summary:focus-visible {
   gap: 16px;
 }
 
-.plan-grid article {
+.plan-card {
+  display: flex;
+  flex-direction: column;
   min-height: 300px;
   padding: 30px 26px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--paper);
+  transition: color 0.25s, background 0.25s, border-color 0.25s, box-shadow 0.25s, transform 0.25s;
 }
 
-.plan-grid article.featured {
+.plan-card.featured {
   border-color: var(--blue);
   background: var(--blue);
   color: #fff;
@@ -597,6 +600,70 @@ summary:focus-visible {
 .plan-grid .featured p {
   color: #e2eff2;
 }
+
+.plan-card:hover,
+.plan-card:focus-visible {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 22px 48px #17485d33;
+  transform: translateY(-10px);
+}
+
+.plan-card:hover h3,
+.plan-card:focus-visible h3 { color: #fff; }
+
+.plan-card:hover p,
+.plan-card:focus-visible p { color: #e2eff2; }
+
+.card-action {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+  padding-top: 20px;
+  color: var(--blue-deep);
+  font-size: 15px;
+}
+
+.featured .card-action,
+.plan-card:hover .card-action,
+.plan-card:focus-visible .card-action { color: #f2c96f; }
+
+.platform-access {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(480px, 1.1fr);
+  gap: 64px;
+  margin-top: 88px;
+  padding: 64px;
+  border-radius: 22px;
+  background: var(--sand);
+}
+
+.platform-access-intro h2 { margin: 10px 0 22px; font-size: clamp(42px, 4vw, 58px); }
+.platform-access-intro > p:last-child { margin-bottom: 0; color: var(--muted); }
+.access-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+
+.access-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--paper);
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.access-card.owner { background: var(--green); color: #fff; }
+.access-card > span { color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.access-card.owner > span { color: #f2c96f; }
+.access-card h3 { margin: 54px 0 20px; color: var(--green); font: 32px/1.12 Georgia, serif; }
+.access-card.owner h3 { color: #fff; }
+.access-card strong { display: flex; justify-content: space-between; gap: 16px; margin-top: auto; color: var(--blue-deep); font-size: 15px; }
+.access-card.owner strong { color: #f2c96f; }
+.access-card:hover,
+.access-card:focus-visible { box-shadow: 0 20px 44px #16372f2e; transform: translateY(-8px); }
 
 .roadmap {
   margin: 30px 0 0;
@@ -722,6 +789,8 @@ footer p:last-child {
   .audience-grid article:last-child {
     grid-column: 1 / -1;
   }
+
+  .platform-access { grid-template-columns: 1fr; }
 }
 
 /* Tablet plan grid */
@@ -731,7 +800,7 @@ footer p:last-child {
     grid-template-columns: 1fr 1fr;
   }
 
-  .plan-grid article:last-child {
+  .plan-grid .plan-card:last-child {
     grid-column: 1 / -1;
   }
 }
@@ -862,6 +931,9 @@ footer p:last-child {
   .dashboard-callout .button {
     width: 100%;
   }
+
+  .platform-access { gap: 42px; margin-top: 64px; padding: 42px 30px; }
+  .access-grid { grid-template-columns: 1fr; }
 
   .gabo-io {
     grid-template-columns: 1fr;
