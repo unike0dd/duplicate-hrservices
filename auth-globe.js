@@ -2,264 +2,487 @@
   "use strict";
 
   const canvas = document.querySelector("#global-globe");
+  const stage = document.querySelector(".globe-stage");
+  const panel = document.querySelector(".global-side");
   const marker = document.querySelector("#globe-marker-label");
-  if (!canvas) return;
 
-  const context = canvas.getContext("2d", { alpha: true });
-  if (!context) return;
+  if (!canvas || !stage || !panel) return;
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const continents = [
-    [[-168,70],[-145,74],[-120,75],[-95,72],[-78,64],[-59,52],[-74,40],[-80,26],[-97,18],[-117,32],[-125,52],[-150,72]],
-    [[-98,22],[-86,16],[-78,8],[-80,4],[-88,13]],
-    [[-81,12],[-63,5],[-44,-5],[-38,-20],[-53,-44],[-61,-55],[-69,-52],[-76,-25],[-80,-10]],
-    [[-10,36],[-7,50],[14,58],[30,64],[40,58],[29,45],[14,40],[0,40]],
-    [[-17,35],[10,35],[34,25],[50,3],[43,-12],[27,-34],[18,-35],[2,-18],[-16,13]],
-    [[28,42],[55,60],[100,72],[145,58],[160,52],[138,35],[116,20],[105,11],[88,20],[78,29],[60,28],[42,40]],
-    [[68,27],[88,23],[105,20],[111,11],[104,2],[88,14],[80,8],[75,18]],
-    [[112,-11],[138,-16],[153,-34],[145,-40],[117,-34],[112,-23]],
-    [[-55,60],[-30,69],[-25,78],[-40,84],[-57,82],[-68,74]],
-  ];
-
-  const cities = [
-    { name: "Guayaquil", lat: -2.17, lon: -79.92, home: true },
-    { name: "New York", lat: 40.71, lon: -74.01 },
-    { name: "Los Angeles", lat: 34.05, lon: -118.24 },
-    { name: "São Paulo", lat: -23.55, lon: -46.63 },
-    { name: "London", lat: 51.51, lon: -0.13 },
-    { name: "Madrid", lat: 40.42, lon: -3.7 },
-    { name: "Dubai", lat: 25.2, lon: 55.27 },
-    { name: "Mumbai", lat: 19.08, lon: 72.88 },
-    { name: "Singapore", lat: 1.35, lon: 103.82 },
-    { name: "Tokyo", lat: 35.68, lon: 139.65 },
-    { name: "Sydney", lat: -33.87, lon: 151.21 },
-  ];
-
-  const connections = [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[4,6],[6,7],[7,8],[8,9],[8,10]];
-  const landPoints = [];
-  let width = 1;
-  let height = 1;
-  let centerX = 0;
-  let centerY = 0;
-  let radius = 1;
-  let rotation = -80;
-  let previousTime = performance.now();
-  let frameId;
-  let resizeTimer;
-
-  function inside(lon, lat, polygon) {
-    let result = false;
-    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      const [xi, yi] = polygon[i];
-      const [xj, yj] = polygon[j];
-      const intersects = (yi > lat) !== (yj > lat)
-        && lon < ((xj - xi) * (lat - yi)) / ((yj - yi) || 0.000001) + xi;
-      if (intersects) result = !result;
+  /*
+   * Keep the existing auth page markup and messaging intact.  The overrides
+   * below only replace the right-side illustration layer so the live page
+   * keeps the established Gabo Services palette and responsive structure.
+   */
+  const style = document.createElement("style");
+  style.textContent = `
+    .auth-page-globe .global-side {
+      background:
+        radial-gradient(circle at 72% 30%, rgba(40, 104, 90, .28), transparent 36%),
+        linear-gradient(145deg, #0b463d 0%, #0a3d35 55%, #072d29 100%);
     }
-    return result;
-  }
-
-  function seeded(index, offset) {
-    const value = Math.sin(index * 87.13 + offset * 41.71) * 43758.5453;
-    return value - Math.floor(value);
-  }
-
-  function generateLand() {
-    landPoints.length = 0;
-    const step = window.innerWidth <= 760 ? 3.5 : 2.45;
-    let index = 0;
-
-    for (let lat = -58; lat <= 82; lat += step) {
-      for (let lon = -180; lon <= 180; lon += step) {
-        const pointLon = lon + (seeded(index, 1) - 0.5) * 1.35;
-        const pointLat = lat + (seeded(index, 2) - 0.5) * 1.35;
-
-        if (continents.some((polygon) => inside(pointLon, pointLat, polygon))) {
-          landPoints.push({
-            lon: pointLon,
-            lat: pointLat,
-            size: 0.7 + seeded(index, 3) * 1.2,
-            alpha: 0.45 + seeded(index, 4) * 0.5,
-          });
-        }
-        index += 1;
+    .auth-page-globe .global-side::before,
+    .auth-page-globe .global-side::after {
+      display: none !important;
+    }
+    .auth-page-globe .global-atmosphere {
+      z-index: 0;
+      opacity: .72;
+      background:
+        radial-gradient(circle at 76% 22%, rgba(214, 161, 60, .12), transparent 28%),
+        radial-gradient(circle at 70% 76%, rgba(220, 235, 241, .08), transparent 38%),
+        linear-gradient(180deg, rgba(255,255,255,.015), rgba(4,35,31,.14));
+    }
+    .auth-page-globe .globe-stage {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: auto;
+      z-index: 2;
+    }
+    .auth-page-globe #global-globe {
+      width: 100%;
+      height: 100%;
+    }
+    .auth-page-globe .global-message,
+    .auth-page-globe .global-status {
+      text-shadow: 0 1px 14px rgba(1, 28, 24, .18);
+    }
+    .auth-page-globe .globe-marker-label {
+      z-index: 30;
+    }
+    @media (max-width: 760px) {
+      .auth-page-globe .globe-stage {
+        inset: 0;
+        width: 100%;
+        height: 100%;
       }
     }
-  }
+  `;
+  document.head.appendChild(style);
 
-  function resize() {
-    const bounds = canvas.getBoundingClientRect();
-    const ratio = Math.min(window.devicePixelRatio || 1, window.innerWidth <= 760 ? 1.35 : 2);
-    width = Math.max(1, bounds.width);
-    height = Math.max(1, bounds.height);
-    canvas.width = Math.round(width * ratio);
-    canvas.height = Math.round(height * ratio);
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    centerX = width / 2;
-    centerY = height / 2;
-    radius = Math.min(width, height) * 0.39;
-  }
+  import("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js")
+    .then((THREE) => initializeGlobe(THREE))
+    .catch((error) => {
+      console.error("Unable to load the Gabo Services globe visual.", error);
+    });
 
-  function project(lat, lon) {
-    const latitude = lat * Math.PI / 180;
-    const longitude = (lon + rotation) * Math.PI / 180;
-    const x = Math.cos(latitude) * Math.sin(longitude);
-    const y = Math.sin(latitude);
-    const z = Math.cos(latitude) * Math.cos(longitude);
-    return { x: centerX + x * radius, y: centerY - y * radius, z, visible: z > 0 };
-  }
+  function initializeGlobe(THREE) {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: "high-performance",
+    });
 
-  function drawSphere() {
-    const glow = context.createRadialGradient(
-      centerX - radius * 0.3,
-      centerY - radius * 0.35,
-      radius * 0.08,
-      centerX,
-      centerY,
-      radius,
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+
+    const EARTH_RADIUS = 5;
+    const EARTH_POSITION = new THREE.Vector3(2.05, -2.72, 0);
+    const SUN_POSITION = new THREE.Vector3(6.45, 2.0, -5.35);
+    const EARTH_ROTATION_SPEED = 0.035;
+    const CLOUD_ROTATION_SPEED = 0.043;
+
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = "anonymous";
+
+    const earthTexture = textureLoader.load(
+      "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg"
     );
-    glow.addColorStop(0, "rgba(255,255,255,.11)");
-    glow.addColorStop(0.6, "rgba(255,255,255,.025)");
-    glow.addColorStop(1, "rgba(92,24,0,.15)");
-    context.beginPath();
-    context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    context.fillStyle = glow;
-    context.fill();
-    context.strokeStyle = "rgba(255,255,255,.16)";
-    context.stroke();
-  }
+    const earthNormalTexture = textureLoader.load(
+      "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_normal_2048.jpg"
+    );
+    const earthSpecularTexture = textureLoader.load(
+      "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_specular_2048.jpg"
+    );
+    const earthNightTexture = textureLoader.load(
+      "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_lights_2048.png"
+    );
+    const cloudTexture = textureLoader.load(
+      "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_clouds_1024.png"
+    );
 
-  function drawGrid() {
-    context.strokeStyle = "rgba(255,255,255,.075)";
-    context.lineWidth = 0.7;
-    const lines = [];
+    earthTexture.colorSpace = THREE.SRGBColorSpace;
+    earthNightTexture.colorSpace = THREE.SRGBColorSpace;
 
-    for (let lat = -60; lat <= 60; lat += 30) {
-      lines.push(Array.from({ length: 121 }, (_, i) => [lat, -180 + i * 3]));
-    }
-    for (let lon = -150; lon <= 180; lon += 30) {
-      lines.push(Array.from({ length: 61 }, (_, i) => [-90 + i * 3, lon]));
-    }
+    const earthSystem = new THREE.Group();
+    earthSystem.position.copy(EARTH_POSITION);
+    earthSystem.rotation.z = THREE.MathUtils.degToRad(-23.4);
+    scene.add(earthSystem);
 
-    lines.forEach((line) => {
-      context.beginPath();
-      let drawing = false;
-      line.forEach(([lat, lon]) => {
-        const point = project(lat, lon);
-        if (!point.visible) {
-          drawing = false;
-          return;
+    const earthGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 128, 128);
+    const earthMaterial = new THREE.MeshPhongMaterial({
+      map: earthTexture,
+      normalMap: earthNormalTexture,
+      normalScale: new THREE.Vector2(0.42, 0.42),
+      specularMap: earthSpecularTexture,
+      specular: new THREE.Color(0x496661),
+      shininess: 20,
+    });
+
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    earthSystem.add(earth);
+
+    const nightEarth = new THREE.Mesh(
+      new THREE.SphereGeometry(EARTH_RADIUS + 0.012, 128, 128),
+      new THREE.MeshBasicMaterial({
+        map: earthNightTexture,
+        transparent: true,
+        opacity: 0.46,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      })
+    );
+    earth.add(nightEarth);
+
+    const clouds = new THREE.Mesh(
+      new THREE.SphereGeometry(EARTH_RADIUS + 0.055, 128, 128),
+      new THREE.MeshPhongMaterial({
+        map: cloudTexture,
+        transparent: true,
+        opacity: 0.24,
+        depthWrite: false,
+      })
+    );
+    earthSystem.add(clouds);
+
+    const atmosphere = new THREE.Mesh(
+      new THREE.SphereGeometry(EARTH_RADIUS * 1.035, 128, 128),
+      new THREE.ShaderMaterial({
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        depthWrite: false,
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vWorldPosition;
+          void main() {
+            vNormal = normalize(mat3(modelMatrix) * normal);
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPosition = worldPosition.xyz;
+            gl_Position = projectionMatrix * viewMatrix * worldPosition;
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vNormal;
+          varying vec3 vWorldPosition;
+          void main() {
+            vec3 N = normalize(vNormal);
+            vec3 V = normalize(cameraPosition - vWorldPosition);
+            float rim = pow(1.0 - max(dot(N, V), 0.0), 3.2);
+            vec3 color = vec3(0.28, 0.66, 0.60);
+            float alpha = rim * 0.17;
+            gl_FragColor = vec4(color * alpha, alpha);
+          }
+        `,
+      })
+    );
+    earthSystem.add(atmosphere);
+
+    const sunriseMaterial = new THREE.ShaderMaterial({
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      depthWrite: false,
+      uniforms: {
+        sunWorldPosition: { value: SUN_POSITION.clone() },
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        void main() {
+          vNormal = normalize(mat3(modelMatrix) * normal);
+          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPosition.xyz;
+          gl_Position = projectionMatrix * viewMatrix * worldPosition;
         }
-        if (drawing) context.lineTo(point.x, point.y);
-        else context.moveTo(point.x, point.y);
-        drawing = true;
-      });
-      context.stroke();
+      `,
+      fragmentShader: `
+        uniform vec3 sunWorldPosition;
+        varying vec3 vNormal;
+        varying vec3 vWorldPosition;
+        void main() {
+          vec3 N = normalize(vNormal);
+          vec3 V = normalize(cameraPosition - vWorldPosition);
+          vec3 L = normalize(sunWorldPosition - vWorldPosition);
+          float rim = pow(1.0 - max(dot(N, V), 0.0), 3.65);
+          float sunFacing = max(dot(N, L), 0.0);
+          float localized = smoothstep(0.34, 0.90, sunFacing);
+          localized = pow(localized, 3.15);
+          float shine = rim * localized;
+          float hotCenter = pow(localized, 4.0);
+          vec3 amber = vec3(0.96, 0.55, 0.16);
+          vec3 whiteGold = vec3(1.0, 0.97, 0.80);
+          vec3 shineColor = mix(amber, whiteGold, hotCenter);
+          float alpha = shine * (0.34 + hotCenter * 2.25);
+          gl_FragColor = vec4(shineColor * alpha, alpha);
+        }
+      `,
     });
-  }
 
-  function drawLand() {
-    landPoints.forEach((point) => {
-      const projected = project(point.lat, point.lon);
-      if (!projected.visible) return;
-      const depth = Math.max(0, Math.min(1, projected.z));
-      context.beginPath();
-      context.arc(projected.x, projected.y, point.size * (0.65 + depth * 0.65), 0, Math.PI * 2);
-      context.fillStyle = `rgba(255,248,235,${point.alpha * (0.22 + depth * 0.75)})`;
-      context.fill();
-    });
-  }
+    const sunriseAtmosphere = new THREE.Mesh(
+      new THREE.SphereGeometry(EARTH_RADIUS * 1.020, 128, 128),
+      sunriseMaterial
+    );
+    earthSystem.add(sunriseAtmosphere);
 
-  function drawConnections() {
-    connections.forEach(([fromIndex, toIndex]) => {
-      const from = project(cities[fromIndex].lat, cities[fromIndex].lon);
-      const to = project(cities[toIndex].lat, cities[toIndex].lon);
-      if (from.z <= 0.08 || to.z <= 0.08) return;
+    const ambientLight = new THREE.AmbientLight(0x244640, 0.68);
+    scene.add(ambientLight);
 
-      const distance = Math.hypot(to.x - from.x, to.y - from.y);
-      context.beginPath();
-      context.moveTo(from.x, from.y);
-      context.quadraticCurveTo(
-        (from.x + to.x) / 2,
-        (from.y + to.y) / 2 - distance * 0.18,
-        to.x,
-        to.y,
+    const sunLight = new THREE.DirectionalLight(0xffe7ad, 3.4);
+    sunLight.position.copy(SUN_POSITION);
+    sunLight.target.position.copy(EARTH_POSITION);
+    scene.add(sunLight);
+    scene.add(sunLight.target);
+
+    const nightFill = new THREE.DirectionalLight(0x235367, 0.36);
+    nightFill.position.set(-8, -1, -4);
+    scene.add(nightFill);
+
+    const sun = new THREE.Mesh(
+      new THREE.SphereGeometry(0.50, 48, 48),
+      new THREE.MeshBasicMaterial({ color: 0xfff1bc })
+    );
+    sun.position.copy(SUN_POSITION);
+    scene.add(sun);
+
+    function createSunGlowTexture() {
+      const size = 512;
+      const glowCanvas = document.createElement("canvas");
+      glowCanvas.width = size;
+      glowCanvas.height = size;
+      const context = glowCanvas.getContext("2d");
+      const gradient = context.createRadialGradient(
+        size / 2,
+        size / 2,
+        0,
+        size / 2,
+        size / 2,
+        size / 2
       );
-      context.strokeStyle = "rgba(255,255,255,.23)";
-      context.lineWidth = 0.8;
-      context.stroke();
-    });
-  }
-
-  function drawCities() {
-    let home;
-
-    cities.forEach((city) => {
-      const point = project(city.lat, city.lon);
-      if (!point.visible) return;
-
-      const size = city.home ? 4.1 : 2.4;
-      context.beginPath();
-      context.arc(point.x, point.y, size * 2.4, 0, Math.PI * 2);
-      context.fillStyle = city.home ? "rgba(255,255,255,.15)" : "rgba(255,255,255,.08)";
-      context.fill();
-
-      context.beginPath();
-      context.arc(point.x, point.y, size, 0, Math.PI * 2);
-      context.fillStyle = city.home ? "#fff" : "rgba(255,255,255,.76)";
-      context.fill();
-
-      if (city.home) home = point;
-    });
-
-    if (!marker) return;
-    marker.style.opacity = home && home.z > 0.12 ? "1" : "0";
-    if (home) {
-      marker.style.left = `${home.x}px`;
-      marker.style.top = `${home.y}px`;
+      gradient.addColorStop(0, "rgba(255,255,245,1)");
+      gradient.addColorStop(0.08, "rgba(255,244,195,.96)");
+      gradient.addColorStop(0.23, "rgba(255,202,100,.68)");
+      gradient.addColorStop(0.50, "rgba(230,169,75,.20)");
+      gradient.addColorStop(1, "rgba(230,169,75,0)");
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, size, size);
+      return new THREE.CanvasTexture(glowCanvas);
     }
-  }
 
-  function render(time = performance.now()) {
-    const elapsed = Math.min(50, time - previousTime);
-    previousTime = time;
-    if (!reducedMotion.matches) rotation += elapsed * 0.00315;
+    const sunGlow = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: createSunGlowTexture(),
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        depthTest: true,
+      })
+    );
+    sunGlow.position.copy(SUN_POSITION);
+    sunGlow.scale.set(4.25, 4.25, 1);
+    scene.add(sunGlow);
 
-    context.clearRect(0, 0, width, height);
-    drawSphere();
-    drawGrid();
-    drawConnections();
-    drawLand();
-    drawCities();
+    const networkGroup = new THREE.Group();
+    earth.add(networkGroup);
 
-    if (!reducedMotion.matches && !document.hidden) {
-      frameId = requestAnimationFrame(render);
+    const cityData = [
+      { name: "Guayaquil", lat: -2.17, lon: -79.92, home: true },
+      { name: "New York", lat: 40.71, lon: -74.01 },
+      { name: "Los Angeles", lat: 34.05, lon: -118.24 },
+      { name: "São Paulo", lat: -23.55, lon: -46.63 },
+      { name: "London", lat: 51.51, lon: -0.13 },
+      { name: "Madrid", lat: 40.42, lon: -3.70 },
+      { name: "Dubai", lat: 25.20, lon: 55.27 },
+      { name: "Mumbai", lat: 19.08, lon: 72.88 },
+      { name: "Singapore", lat: 1.35, lon: 103.82 },
+      { name: "Tokyo", lat: 35.68, lon: 139.65 },
+      { name: "Sydney", lat: -33.87, lon: 151.21 },
+    ];
+
+    const connectionPairs = [
+      [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6],
+      [4, 6], [6, 7], [7, 8], [8, 9], [8, 10],
+    ];
+
+    function latLonToVector3(lat, lon, radius = EARTH_RADIUS) {
+      const phi = THREE.MathUtils.degToRad(90 - lat);
+      const theta = THREE.MathUtils.degToRad(lon + 180);
+      return new THREE.Vector3(
+        -radius * Math.sin(phi) * Math.cos(theta),
+        radius * Math.cos(phi),
+        radius * Math.sin(phi) * Math.sin(theta)
+      );
     }
-  }
 
-  function initialize() {
-    cancelAnimationFrame(frameId);
+    const cityPositions = cityData.map((city) => latLonToVector3(city.lat, city.lon, EARTH_RADIUS + 0.08));
+
+    cityData.forEach((city, index) => {
+      const dot = new THREE.Mesh(
+        new THREE.SphereGeometry(city.home ? 0.065 : 0.043, 12, 12),
+        new THREE.MeshBasicMaterial({
+          color: city.home ? 0xf2c96f : 0xf7efe0,
+          transparent: true,
+          opacity: city.home ? 1 : 0.78,
+        })
+      );
+      dot.position.copy(cityPositions[index]);
+      networkGroup.add(dot);
+
+      if (city.home) {
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(0.095, 0.12, 28),
+          new THREE.MeshBasicMaterial({
+            color: 0xf2c96f,
+            transparent: true,
+            opacity: 0.55,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+          })
+        );
+        ring.position.copy(cityPositions[index]).multiplyScalar((EARTH_RADIUS + 0.09) / (EARTH_RADIUS + 0.08));
+        ring.lookAt(new THREE.Vector3(0, 0, 0));
+        networkGroup.add(ring);
+      }
+    });
+
+    connectionPairs.forEach(([fromIndex, toIndex]) => {
+      const from = cityPositions[fromIndex].clone().normalize();
+      const to = cityPositions[toIndex].clone().normalize();
+      const angle = from.angleTo(to);
+      const lift = Math.min(0.95, 0.22 + angle * 0.34);
+      const points = [];
+
+      for (let i = 0; i <= 48; i += 1) {
+        const t = i / 48;
+        const direction = from.clone().lerp(to, t).normalize();
+        const arcLift = Math.sin(Math.PI * t) * lift;
+        points.push(direction.multiplyScalar(EARTH_RADIUS + 0.085 + arcLift));
+      }
+
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const material = new THREE.LineBasicMaterial({
+        color: 0xe9efe6,
+        transparent: true,
+        opacity: 0.25,
+        depthWrite: false,
+      });
+      networkGroup.add(new THREE.Line(geometry, material));
+    });
+
+    const homeAnchor = new THREE.Object3D();
+    homeAnchor.position.copy(cityPositions[0]);
+    earth.add(homeAnchor);
+
+    const starCount = 1000;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let index = 0; index < starCount; index += 1) {
+      const starRadius = 55 + Math.random() * 80;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      starPositions[index * 3] = starRadius * Math.sin(phi) * Math.cos(theta);
+      starPositions[index * 3 + 1] = starRadius * Math.cos(phi);
+      starPositions[index * 3 + 2] = starRadius * Math.sin(phi) * Math.sin(theta);
+    }
+
+    const starsGeometry = new THREE.BufferGeometry();
+    starsGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+    scene.add(
+      new THREE.Points(
+        starsGeometry,
+        new THREE.PointsMaterial({
+          color: 0xffffff,
+          size: 0.045,
+          transparent: true,
+          opacity: 0.34,
+          depthWrite: false,
+        })
+      )
+    );
+
+    camera.position.set(0, 0.35, 15.5);
+    camera.lookAt(1.6, -1.4, 0);
+
+    function resize() {
+      const width = Math.max(1, stage.clientWidth);
+      const height = Math.max(1, stage.clientHeight);
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+
+      if (width <= 760) {
+        camera.position.set(0, 1.15, 18.2);
+        earthSystem.position.set(2.55, -3.35, 0);
+      } else {
+        camera.position.set(0, 0.35, 15.5);
+        earthSystem.position.copy(EARTH_POSITION);
+      }
+
+      camera.lookAt(width <= 760 ? 1.8 : 1.6, width <= 760 ? -1.6 : -1.4, 0);
+      camera.updateProjectionMatrix();
+      sunLight.target.position.copy(earthSystem.position);
+    }
+
+    const projected = new THREE.Vector3();
+    const worldHome = new THREE.Vector3();
+    const worldEarthCenter = new THREE.Vector3();
+    const normal = new THREE.Vector3();
+    const toCamera = new THREE.Vector3();
+
+    function updateMarker() {
+      if (!marker) return;
+
+      homeAnchor.getWorldPosition(worldHome);
+      earthSystem.getWorldPosition(worldEarthCenter);
+      normal.copy(worldHome).sub(worldEarthCenter).normalize();
+      toCamera.copy(camera.position).sub(worldHome).normalize();
+      const visible = normal.dot(toCamera) > 0.06;
+
+      projected.copy(worldHome).project(camera);
+      const x = (projected.x * 0.5 + 0.5) * stage.clientWidth;
+      const y = (-projected.y * 0.5 + 0.5) * stage.clientHeight;
+
+      marker.style.left = `${x}px`;
+      marker.style.top = `${y}px`;
+      marker.style.opacity = visible ? "1" : "0";
+    }
+
+    const clock = new THREE.Clock();
+    let frameId = 0;
+
+    function animate() {
+      const delta = Math.min(clock.getDelta(), 0.05);
+
+      if (!reducedMotion.matches) {
+        earth.rotation.y += delta * EARTH_ROTATION_SPEED;
+        clouds.rotation.y += delta * CLOUD_ROTATION_SPEED;
+      }
+
+      sunriseMaterial.uniforms.sunWorldPosition.value.copy(sun.position);
+      updateMarker();
+      renderer.render(scene, camera);
+      frameId = requestAnimationFrame(animate);
+    }
+
+    function handleVisibility() {
+      if (document.hidden) {
+        cancelAnimationFrame(frameId);
+      } else {
+        clock.getDelta();
+        animate();
+      }
+    }
+
+    window.addEventListener("resize", resize, { passive: true });
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pagehide", () => cancelAnimationFrame(frameId), { once: true });
+
     resize();
-    generateLand();
-    previousTime = performance.now();
-    render();
+    animate();
   }
-
-  window.addEventListener("resize", () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(initialize, 120);
-  }, { passive: true });
-
-  if (typeof reducedMotion.addEventListener === "function") {
-    reducedMotion.addEventListener("change", initialize);
-  }
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) cancelAnimationFrame(frameId);
-    else initialize();
-  });
-
-  window.addEventListener("pagehide", () => cancelAnimationFrame(frameId));
-  initialize();
 })();
