@@ -1,0 +1,252 @@
+/* Reference-match refinement for the Auth page.
+   Visual-only overrides: preserve existing content, scripts, routing, and globe behavior. */
+
+.auth-shell-globe {
+  grid-template-columns: 49.2% 50.8%;
+}
+
+.auth-side {
+  padding: 40px clamp(44px, 5.3vw, 84px) 38px;
+  background:
+    radial-gradient(circle at 10% 4%, rgba(255,255,255,.78), transparent 28%),
+    linear-gradient(180deg, #fffdf8 0%, #fbf8f1 100%);
+}
+
+.auth-brand {
+  top: auto;
+  left: auto;
+  position: static;
+  display: inline-block;
+  margin-bottom: 28px;
+  font-size: clamp(28px, 2.1vw, 38px);
+}
+
+.auth-content {
+  max-width: 560px;
+  padding: 8px 0 18px;
+  justify-content: flex-start;
+}
+
+.auth-context h1 {
+  margin: 0 0 10px;
+  font-size: clamp(54px, 4.65vw, 78px);
+  line-height: .98;
+}
+
+.auth-context > p {
+  margin-bottom: 10px;
+  max-width: 520px;
+  font-size: 16px;
+}
+
+.auth-tabs {
+  margin-bottom: 26px;
+  gap: 34px;
+}
+
+.auth-tab {
+  font-size: 14px;
+  padding-bottom: 12px;
+}
+
+.auth-providers {
+  gap: 18px;
+}
+
+.auth-provider {
+  min-height: 56px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.auth-divider {
+  margin: 24px 0 26px;
+}
+
+.auth-form-wrap {
+  width: 100%;
+  max-width: 560px;
+}
+
+.auth-form-wrap form > label,
+.name-field label {
+  margin: 19px 0 8px;
+  font-size: 13px;
+}
+
+.auth-page-globe .auth-form-wrap input[type="email"],
+.auth-page-globe .auth-form-wrap input[type="password"],
+.auth-page-globe .auth-form-wrap input[type="text"] {
+  min-height: 57px;
+  border-radius: 8px;
+  padding-inline: 16px;
+  font-size: 16px;
+  box-shadow: 0 7px 20px rgba(14,48,41,.025);
+}
+
+.form-options {
+  margin: 18px 0 24px;
+}
+
+.auth-page-globe .auth-submit {
+  min-height: 60px;
+  border-radius: 9px;
+  background: linear-gradient(110deg, #dfa22c 0%, #e7ad39 100%);
+  box-shadow: 0 12px 30px rgba(177,119,15,.13);
+}
+
+.form-note {
+  margin-top: 16px;
+}
+
+.account-recovery {
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.back-link {
+  margin-top: 24px;
+}
+
+.global-side {
+  background:
+    radial-gradient(circle at 82% 34%, rgba(214,161,60,.10), transparent 24%),
+    radial-gradient(circle at 58% 74%, rgba(36,95,120,.18), transparent 42%),
+    linear-gradient(145deg, #07362f 0%, #0d443c 48%, #164c45 100%);
+}
+
+.global-atmosphere {
+  background:
+    radial-gradient(ellipse at 85% 46%, rgba(255,207,108,.17), transparent 17%),
+    radial-gradient(ellipse at 76% 55%, rgba(242,201,111,.08), transparent 25%),
+    radial-gradient(circle at 72% 78%, rgba(220,235,241,.10), transparent 39%),
+    linear-gradient(180deg, rgba(255,255,255,.015), rgba(7,54,47,.24));
+}
+
+.global-message {
+  top: 10.5%;
+  left: clamp(46px, 5.1vw, 84px);
+  max-width: 500px;
+}
+
+.global-eyebrow {
+  margin-bottom: 20px;
+  font-size: 11px;
+}
+
+.global-message h2 {
+  font-size: clamp(58px, 5.4vw, 92px);
+  line-height: .89;
+}
+
+.global-message > p:last-child {
+  max-width: 420px;
+  margin-top: 26px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Large, lower globe matching the supplied reference. */
+.globe-stage {
+  width: min(74vw, 1120px);
+  right: clamp(-185px, -9vw, -72px);
+  bottom: clamp(-335px, -17vw, -210px);
+}
+
+/* Move the sunrise to the actual globe horizon at the upper-right edge. */
+.global-side::before {
+  z-index: 5;
+  right: clamp(72px, 7.2vw, 128px);
+  bottom: 52.5%;
+  width: clamp(62px, 5.7vw, 94px);
+  background:
+    radial-gradient(circle,
+      #fffdf0 0 7%,
+      #ffe9a8 12%,
+      #ffc95d 23%,
+      rgba(236,170,54,.50) 39%,
+      rgba(214,161,60,.16) 58%,
+      transparent 74%);
+  box-shadow:
+    0 0 18px rgba(255,241,193,.95),
+    0 0 52px rgba(244,189,85,.70),
+    0 0 116px rgba(214,161,60,.38),
+    0 0 210px rgba(214,161,60,.14);
+}
+
+.global-side::after {
+  z-index: 4;
+  right: -3%;
+  bottom: 53%;
+  width: 47%;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(242,201,111,.10) 18%,
+    rgba(242,201,111,.48) 62%,
+    rgba(255,237,188,.94) 82%,
+    transparent 100%);
+  box-shadow:
+    0 -10px 38px rgba(214,161,60,.15),
+    0 10px 50px rgba(214,161,60,.12);
+}
+
+.global-status {
+  left: clamp(46px, 5.1vw, 84px);
+  bottom: 26px;
+}
+
+@media (max-width: 1180px) {
+  .auth-shell-globe { grid-template-columns: 50% 50%; }
+  .auth-side { padding-inline: 38px; }
+  .globe-stage {
+    width: 930px;
+    right: -230px;
+    bottom: -255px;
+  }
+  .global-side::before {
+    right: 44px;
+    bottom: 50%;
+  }
+  .global-side::after {
+    bottom: 50.5%;
+    width: 54%;
+  }
+}
+
+@media (max-width: 760px) {
+  .auth-side {
+    padding: 26px 24px 38px;
+  }
+  .auth-brand {
+    margin-bottom: 18px;
+  }
+  .auth-content {
+    padding-top: 24px;
+  }
+  .global-side {
+    min-height: 640px;
+  }
+  .global-message {
+    top: 42px;
+    left: 26px;
+    right: 26px;
+  }
+  .globe-stage {
+    width: 760px;
+    right: -330px;
+    bottom: -245px;
+  }
+  .global-side::before {
+    right: 16px;
+    bottom: 46%;
+    width: 70px;
+  }
+  .global-side::after {
+    bottom: 46.5%;
+    width: 70%;
+  }
+  .global-status {
+    left: 26px;
+  }
+}
