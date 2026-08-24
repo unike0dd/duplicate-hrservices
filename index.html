@@ -25,6 +25,21 @@
   <link rel="apple-touch-icon" href="coldwhiteagle.jpg">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="brand-theme.css">
+<style>
+/* Language and theme controls */
+.ui-preferences{display:flex;align-items:center;gap:7px;z-index:50}
+.ui-toggle{min-width:44px;height:34px;padding:0 10px;border:1px solid var(--line,#d8dee3);border-radius:9px;background:var(--white,#fff);color:var(--ink,#1b2b38);font:700 11px/1 system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(20,35,48,.08);transition:background .2s,color .2s,border-color .2s}
+.ui-toggle:hover,.ui-toggle:focus-visible{border-color:var(--orange,#ed7338);outline:2px solid transparent;box-shadow:0 0 0 3px rgba(237,115,56,.18)}
+html[data-theme="dark"]{color-scheme:dark;--ink:#ecf2f5;--muted:#aebbc4;--line:#3a4b58;--canvas:#121b22;--white:#1d2a34;--nav:#17232d;--nav2:#101920;--orange-soft:#3a291f;--shadow:0 8px 24px rgba(0,0,0,.28)}
+html[data-theme="dark"] body,html[data-theme="dark"] main,html[data-theme="dark"] .workspace{background:#121b22;color:#ecf2f5}
+html[data-theme="dark"] .topbar,html[data-theme="dark"] .panel,html[data-theme="dark"] .metrics article,html[data-theme="dark"] .data-row,html[data-theme="dark"] .role-tabs button[aria-selected=true],html[data-theme="dark"] .search,html[data-theme="dark"] .round,html[data-theme="dark"] .panel-title button,html[data-theme="dark"] .ui-toggle{background:#1d2a34;color:#ecf2f5;border-color:#3a4b58}
+html[data-theme="dark"] .role-tabs{background:#14202a}
+html[data-theme="dark"] .data-row:hover{background:#263640}
+html[data-theme="dark"] .insight{background:linear-gradient(135deg,#35271f,#1d2a34);border-color:#63432f}
+html[data-theme="dark"] .task,html[data-theme="dark"] .data-row,html[data-theme="dark"] .table-head{border-color:#33444f}
+html[data-theme="dark"] img{filter:brightness(.88)}
+@media(max-width:720px){.ui-preferences{position:fixed;right:10px;bottom:74px}.ui-toggle{height:38px;background:#fff;color:#1b2b38}}
+</style>
 </head>
 
 <body>
@@ -429,5 +444,78 @@
   </main>
 
   <script src="script.js" defer></script>
+
+<script>
+(() => {
+  const root=document.documentElement;
+  const KEY_THEME="gabo-theme",KEY_LANG="gabo-language";
+  const translations={
+    "Search":"Buscar","Notifications":"Notificaciones","Overview":"Resumen","Settings":"Configuración",
+    "Clients":"Clientes","Projects":"Proyectos","Candidates":"Candidatos","Invoices":"Facturas","Documents":"Documentos",
+    "Job requisitions":"Solicitudes de empleo","Talent pool":"Banco de talento","Pipeline":"Proceso","Interviews":"Entrevistas",
+    "Client accounts":"Cuentas de clientes","Placements & fees":"Colocaciones y honorarios","People directory":"Directorio de personal",
+    "Recruiting":"Reclutamiento","Onboarding":"Incorporación","Performance":"Desempeño","Engagement":"Compromiso",
+    "People analytics":"Analítica de personal","Compliance":"Cumplimiento","My team":"Mi equipo","Hiring":"Contratación",
+    "Payroll":"Nómina","Time & attendance":"Tiempo y asistencia","Benefits":"Beneficios","Reports":"Informes",
+    "My overview":"Mi resumen","Profile":"Perfil","Discover jobs":"Descubrir empleos","Saved jobs":"Empleos guardados",
+    "Applications":"Postulaciones","Assessments":"Evaluaciones","Next actions":"Próximas acciones","Best next move":"Mejor próximo paso",
+    "Filter ⌄":"Filtrar ⌄","Item":"Elemento","Status":"Estado","Progress":"Progreso","Today":"Hoy","This week":"Esta semana",
+    "View recommendation →":"Ver recomendación →","Ordered by priority and recent activity":"Ordenado por prioridad y actividad reciente",
+    "3 items to move forward":"3 elementos para avanzar","SMART INSIGHT":"IDEA INTELIGENTE","Light":"Claro","Dark":"Oscuro",
+    "Platform":"Plataforma","Who it serves":"A quién sirve","Workspaces":"Espacios de trabajo","Plans":"Planes","About":"Acerca de",
+    "Sign in":"Iniciar sesión","View dashboards →":"Ver paneles →","Menu":"Menú","Create account":"Crear cuenta",
+    "Recruitment · Onboarding · Workforce support":"Reclutamiento · Incorporación · Apoyo laboral",
+    "Human opportunity,":"Oportunidad humana,","clearly connected.":"claramente conectada.",
+    "Explore the platform →":"Explorar la plataforma →","View workspace dashboards →":"Ver paneles de trabajo →",
+    "People first":"Las personas primero","Better together.":"Mejor juntos.","Tenant-aware":"Consciente del inquilino",
+    "Role-focused":"Enfocado por función","Human accountable":"Responsabilidad humana","One coordinated platform":"Una plataforma coordinada",
+    "Recruit":"Reclutar","Onboard":"Incorporar","Support":"Apoyar","Three focused experiences.":"Tres experiencias enfocadas.",
+    "For professionals":"Para profesionales","For organizations":"Para organizaciones","For individuals":"Para personas",
+    "Independent HR":"RR. HH. independiente","Growing SMBs":"PyMEs en crecimiento","Talent":"Talento","See the workspace →":"Ver el espacio →",
+    "Role-based workspaces":"Espacios por función","The right view for the work at hand.":"La vista correcta para el trabajo actual.",
+    "Staff":"Personal","Applicant / Talent":"Postulante / Talento","Interactive sample":"Muestra interactiva",
+    "Explore every dashboard.":"Explore cada panel.","Open dashboards →":"Abrir paneles →","Premium plans":"Planes premium",
+    "Start simply. Grow with purpose.":"Empiece simple. Crezca con propósito.","Freelancers":"Freelancers",
+    "HR Professional":"Profesional de RR. HH.","Open dashboard →":"Abrir panel →","Helpful guidance. Human decisions.":"Orientación útil. Decisiones humanas.",
+    "Professional for leadership. Friendly for people.":"Profesional para líderes. Amigable para las personas.",
+    "Review from the beginning →":"Revisar desde el inicio →","Workspace":"Espacio de trabajo","Dashboard":"Panel",
+    "Company overview":"Resumen de la empresa","Daily overview":"Resumen diario","Create task":"Crear tarea","Add client":"Agregar cliente",
+    "New project":"Nuevo proyecto","Add candidate":"Agregar candidato","Log time":"Registrar tiempo","New invoice":"Nueva factura",
+    "Upload document":"Subir documento","Open requisition":"Abrir solicitud","Add talent":"Agregar talento","Move candidate":"Mover candidato",
+    "Schedule interview":"Programar entrevista","Record placement":"Registrar colocación","Add person":"Agregar persona",
+    "Create job":"Crear empleo","Start onboarding":"Iniciar incorporación","Create review":"Crear evaluación","Launch pulse":"Lanzar encuesta",
+    "Build report":"Crear informe","Add control":"Agregar control","Add employee":"Agregar empleado","Post job":"Publicar empleo",
+    "Review payroll":"Revisar nómina","Review requests":"Revisar solicitudes","Open enrollment":"Abrir inscripción",
+    "Create report":"Crear informe","Edit profile":"Editar perfil","Set preferences":"Definir preferencias","Compare jobs":"Comparar empleos",
+    "Add application":"Agregar postulación","Start assessment":"Iniciar evaluación"
+  };
+  const original=new WeakMap();
+  let lang=localStorage.getItem(KEY_LANG)||"en";
+  let theme=localStorage.getItem(KEY_THEME)||"light";
+  const translateText=node=>{
+    if(!node.nodeValue||!node.nodeValue.trim()||node.parentElement?.closest("[data-ui-control]"))return;
+    if(!original.has(node))original.set(node,node.nodeValue);
+    const base=original.get(node),trim=base.trim(),mapped=translations[trim];
+    node.nodeValue=lang==="es"&&mapped?base.replace(trim,mapped):base;
+  };
+  const translateTree=scope=>{
+    const walker=document.createTreeWalker(scope,NodeFilter.SHOW_TEXT);
+    let node;while(node=walker.nextNode())translateText(node);
+    root.lang=lang;
+  };
+  const controls=document.createElement("div");
+  controls.className="ui-preferences";controls.dataset.uiControl="";
+  controls.innerHTML='<button class="ui-toggle" id="languageToggle" type="button" aria-label="Cambiar idioma a español">EN</button><button class="ui-toggle" id="themeToggle" type="button" aria-label="Switch to dark theme">Light</button>';
+  const host=document.querySelector(".top-actions")||document.querySelector(".site-header")||document.body;
+  host.appendChild(controls);
+  const languageButton=controls.querySelector("#languageToggle"),themeButton=controls.querySelector("#themeToggle");
+  const applyTheme=()=>{root.dataset.theme=theme;themeButton.textContent=theme==="light"?"Light":"Dark";themeButton.setAttribute("aria-label",theme==="light"?(lang==="es"?"Cambiar a tema oscuro":"Switch to dark theme"):(lang==="es"?"Cambiar a tema claro":"Switch to light theme"));document.querySelector('meta[name="theme-color"]')?.setAttribute("content",theme==="dark"?"#121b22":"#153f36")};
+  const applyLanguage=()=>{languageButton.textContent=lang.toUpperCase();languageButton.setAttribute("aria-label",lang==="en"?"Cambiar idioma a español":"Switch language to English");translateTree(document.body);applyTheme()};
+  languageButton.addEventListener("click",()=>{lang=lang==="en"?"es":"en";localStorage.setItem(KEY_LANG,lang);applyLanguage()});
+  themeButton.addEventListener("click",()=>{theme=theme==="light"?"dark":"light";localStorage.setItem(KEY_THEME,theme);applyTheme()});
+  new MutationObserver(records=>{if(lang!=="es")return;records.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===Node.TEXT_NODE)translateText(n);else if(n.nodeType===Node.ELEMENT_NODE)translateTree(n)}))}).observe(document.body,{childList:true,subtree:true});
+  applyTheme();applyLanguage();
+})();
+</script>
 </body>
 </html>
