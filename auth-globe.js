@@ -19,8 +19,8 @@
   style.textContent = `
     .auth-page-globe .global-side {
       background:
-        radial-gradient(circle at 72% 30%, rgba(40, 104, 90, .28), transparent 36%),
-        linear-gradient(145deg, #0b463d 0%, #0a3d35 55%, #072d29 100%);
+        radial-gradient(circle at 72% 30%, rgba(62, 137, 119, .38), transparent 38%),
+        linear-gradient(145deg, #10584d 0%, #0d4b41 55%, #083a34 100%);
     }
     .auth-page-globe .global-side::before,
     .auth-page-globe .global-side::after {
@@ -28,7 +28,7 @@
     }
     .auth-page-globe .global-atmosphere {
       z-index: 0;
-      opacity: .72;
+      opacity: .88;
       background:
         radial-gradient(circle at 76% 22%, rgba(214, 161, 60, .12), transparent 28%),
         radial-gradient(circle at 70% 76%, rgba(220, 235, 241, .08), transparent 38%),
@@ -81,7 +81,7 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.18;
 
     const EARTH_RADIUS = 5;
     const EARTH_POSITION = new THREE.Vector3(2.05, -2.72, 0);
@@ -134,7 +134,7 @@
       new THREE.MeshBasicMaterial({
         map: earthNightTexture,
         transparent: true,
-        opacity: 0.46,
+        opacity: 0.58,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       })
@@ -232,10 +232,10 @@
     );
     earthSystem.add(sunriseAtmosphere);
 
-    const ambientLight = new THREE.AmbientLight(0x244640, 0.68);
+    const ambientLight = new THREE.AmbientLight(0x426c63, 0.92);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xffe7ad, 3.4);
+    const sunLight = new THREE.DirectionalLight(0xffd45a, 3.65);
     sunLight.position.copy(SUN_POSITION);
     sunLight.target.position.copy(EARTH_POSITION);
     scene.add(sunLight);
@@ -247,7 +247,7 @@
 
     const sun = new THREE.Mesh(
       new THREE.SphereGeometry(0.50, 48, 48),
-      new THREE.MeshBasicMaterial({ color: 0xfff1bc })
+      new THREE.MeshBasicMaterial({ color: 0xffd23f })
     );
     sun.position.copy(SUN_POSITION);
     scene.add(sun);
@@ -266,9 +266,9 @@
         size / 2,
         size / 2
       );
-      gradient.addColorStop(0, "rgba(255,255,245,1)");
-      gradient.addColorStop(0.08, "rgba(255,244,195,.96)");
-      gradient.addColorStop(0.23, "rgba(255,202,100,.68)");
+      gradient.addColorStop(0, "rgba(255,232,112,1)");
+      gradient.addColorStop(0.08, "rgba(255,211,65,.98)");
+      gradient.addColorStop(0.23, "rgba(255,181,45,.76)");
       gradient.addColorStop(0.50, "rgba(230,169,75,.20)");
       gradient.addColorStop(1, "rgba(230,169,75,0)");
       context.fillStyle = gradient;
