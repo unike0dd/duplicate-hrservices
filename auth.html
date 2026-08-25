@@ -63,7 +63,7 @@ html[data-theme="dark"]{color-scheme:dark}html[data-theme="dark"] .auth-side{bac
             <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
 
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
+            <input id="password" name="password" type="password" autocomplete="current-password" minlength="1" maxlength="128" required placeholder="Enter your password">
 
             <div class="form-options" id="signin-options">
               <label class="checkbox-label">
@@ -84,7 +84,7 @@ html[data-theme="dark"]{color-scheme:dark}html[data-theme="dark"] .auth-side{bac
             <span>Having trouble?</span>
             <a href="mailto:support@gaboservices.com?subject=Forgot%20my%20email">Forgot my email</a>
             <span aria-hidden="true">or</span>
-            <a href="mailto:support@gaboservices.com?subject=Forgot%20my%20password">Forgot my password</a>
+            <a id="forgot-password" href="#">Forgot my password</a>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ html[data-theme="dark"]{color-scheme:dark}html[data-theme="dark"] .auth-side{bac
     </aside>
   </main>
 
-  <script src="auth.js" defer></script>
+  <script type="module" src="auth.js"></script>
   <script src="auth-globe.js" defer></script>
 <script>
 (() => {
