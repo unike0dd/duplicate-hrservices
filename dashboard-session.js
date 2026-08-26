@@ -1,5 +1,6 @@
 import { firebaseAuth as auth } from "./firebase-client.js";
 import {
+  getIdTokenResult,
   onAuthStateChanged,
   signOut,
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
@@ -13,6 +14,14 @@ const DASHBOARDS = Object.freeze({
 });
 
 const AUTH_URL = "https://unike0dd.github.io/duplicate-hrservices/auth.html";
+const REQUIRED_ACCOUNT_STATUS = "active";
+
+function maskEmail(value) {
+  if (!value || !value.includes("@")) return "Signed in";
+  const [local, domain] = value.split("@");
+  const visible = local.slice(0, Math.min(3, local.length));
+  return `${visible}${"*".repeat(Math.max(3, local.length - visible.length))}@${domain}`;
+}
 
 function dashboardContext() {
   return Object.entries(DASHBOARDS).find(([, prefix]) =>
@@ -145,7 +154,7 @@ function installLogout(user, dashboard, prefix) {
 
   const identity = document.createElement("span");
   identity.className = "gabo-session-user";
-  identity.textContent = user.email || "Signed in";
+  identity.textContent = maskEmail(user.email);
 
   const button = document.createElement("button");
   button.id = "gabo-logout";
@@ -195,6 +204,26 @@ if (context) {
     if (!user.emailVerified) {
       await signOut(auth);
       redirectToSignIn(dashboard, prefix, "email-verification-required");
+      return;
+    }
+
+    let claims;
+    try {
+      claims = (await getIdTokenResult(user, true)).claims;
+    } catch {
+      await signOut(auth);
+      await clearGaboSessionData();
+      redirectToSignIn(dashboard, prefix, "authorization-unavailable");
+      return;
+    }
+
+    if (
+      claims.account_type !== dashboard ||
+      claims.account_status !== REQUIRED_ACCOUNT_STATUS
+    ) {
+      await signOut(auth);
+      await clearGaboSessionData();
+      redirectToSignIn(dashboard, prefix, "account-not-authorized");
       return;
     }
 
