@@ -50,19 +50,23 @@ jobs:
             ! -name '_site' \
             -exec cp -R {} _site/ \;
 
-          placeholder_count="$(
-            grep -ohF '__FIREBASE_WEB_API_KEY__'               _site/auth.js               _site/firebase-client.js |
-            wc -l
-          )"
+          deployment_sources=(
+            "_site/auth.js"
+            "_site/firebase-client.js"
+            "_site/dashboard-session.js"
+          )
 
-          if [[ "${placeholder_count}" -ne 2 ]]; then
-            echo "Expected exactly two Firebase API-key placeholders in the deployment sources." >&2
-            exit 1
-          fi
+          for source in "${deployment_sources[@]}"; do
+            if [[ "$(grep -oF '__FIREBASE_WEB_API_KEY__' "${source}" | wc -l)" -ne 1 ]]; then
+              echo "Expected exactly one Firebase API-key placeholder in ${source}." >&2
+              exit 1
+            fi
+          done
 
-          perl -0pi -e 's/__FIREBASE_WEB_API_KEY__/$ENV{FIREBASE_WEB_API_KEY}/g'             _site/auth.js             _site/firebase-client.js
+          perl -0pi -e 's/__FIREBASE_WEB_API_KEY__/$ENV{FIREBASE_WEB_API_KEY}/g' \
+            "${deployment_sources[@]}"
 
-          if grep -Fq '__FIREBASE_WEB_API_KEY__' _site/auth.js _site/firebase-client.js; then
+          if grep -Fq '__FIREBASE_WEB_API_KEY__' "${deployment_sources[@]}"; then
             echo "A Firebase API-key placeholder was not replaced." >&2
             exit 1
           fi
