@@ -47,10 +47,12 @@ function rememberLocation(key, prefix) {
   if (location) localStorage.setItem(key, location);
 }
 
-function redirectToSignIn(dashboard, reason) {
+function redirectToSignIn(dashboard, prefix, reason) {
   const target = new URL(AUTH_URL);
+  const returnTo = safeResumeLocation(window.location.href, prefix);
   target.searchParams.set("dashboard", dashboard);
   target.searchParams.set("mode", "signin");
+  if (returnTo) target.searchParams.set("returnTo", returnTo);
   if (reason) target.searchParams.set("reason", reason);
   window.location.replace(target.href);
 }
@@ -160,7 +162,7 @@ function installLogout(user, dashboard, prefix) {
       await signOut(auth);
       await clearGaboSessionData();
     } finally {
-      redirectToSignIn(dashboard, "signed-out");
+      redirectToSignIn(dashboard, prefix, "signed-out");
     }
   });
 
@@ -186,13 +188,13 @@ if (context) {
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      redirectToSignIn(dashboard, "authentication-required");
+      redirectToSignIn(dashboard, prefix, "authentication-required");
       return;
     }
 
     if (!user.emailVerified) {
       await signOut(auth);
-      redirectToSignIn(dashboard, "email-verification-required");
+      redirectToSignIn(dashboard, prefix, "email-verification-required");
       return;
     }
 

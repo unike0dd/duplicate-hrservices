@@ -65,9 +65,30 @@ function verificationContinueUrl() {
   return url.toString();
 }
 
+function safeDashboardReturnUrl(value, destination) {
+  if (!value || !destination) return null;
+
+  try {
+    const candidate = new URL(value, window.location.origin);
+    const dashboardRoot = new URL(destination.url);
+
+    if (
+      candidate.origin !== dashboardRoot.origin ||
+      !candidate.pathname.startsWith(dashboardRoot.pathname)
+    ) {
+      return null;
+    }
+
+    return candidate.href;
+  } catch {
+    return null;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const destination = dashboards[params.get("dashboard")];
+  const returnUrl = safeDashboardReturnUrl(params.get("returnTo"), destination);
   const form = document.querySelector("#auth-form");
   const signinTab = document.querySelector("#signin-tab");
   const signupTab = document.querySelector("#signup-tab");
@@ -298,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (destination) {
-        window.location.assign(destination.url);
+        window.location.assign(returnUrl || destination.url);
         return;
       }
       window.location.assign("index.html#plans");
