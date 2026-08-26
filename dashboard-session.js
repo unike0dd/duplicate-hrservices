@@ -1,18 +1,8 @@
-import { getApp, getApps, initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { firebaseAuth as auth } from "./firebase-client.js";
 import {
-  getAuth,
   onAuthStateChanged,
   signOut,
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
-const firebaseConfig = Object.freeze({
-  apiKey: "__FIREBASE_WEB_API_KEY__",
-  authDomain: "gabo-service.firebaseapp.com",
-  projectId: "gabo-service",
-  storageBucket: "gabo-service.firebasestorage.app",
-  messagingSenderId: "397025942439",
-  appId: "1:397025942439:web:4cc0abc537ca63e0213482",
-});
 
 const DASHBOARDS = Object.freeze({
   freelance: "/freelance/",
@@ -23,8 +13,6 @@ const DASHBOARDS = Object.freeze({
 });
 
 const AUTH_URL = "https://unike0dd.github.io/duplicate-hrservices/auth.html";
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
 function dashboardContext() {
   return Object.entries(DASHBOARDS).find(([, prefix]) =>
@@ -123,11 +111,12 @@ function installStyles() {
   document.head.appendChild(style);
 }
 
-async function clearGaboSessionData(preservedResumeKey) {
+async function clearGaboSessionData() {
   for (const storage of [sessionStorage, localStorage]) {
     for (let index = storage.length - 1; index >= 0; index -= 1) {
       const key = storage.key(index);
-      if (key?.startsWith("gabo:") && key !== preservedResumeKey) {
+      const isResumeMarker = key?.startsWith("gabo:resume:");
+      if (key?.startsWith("gabo:") && !isResumeMarker) {
         storage.removeItem(key);
       }
     }
@@ -169,7 +158,7 @@ function installLogout(user, dashboard, prefix) {
 
     try {
       await signOut(auth);
-      await clearGaboSessionData(key);
+      await clearGaboSessionData();
     } finally {
       redirectToSignIn(dashboard, "signed-out");
     }
@@ -211,11 +200,7 @@ if (context) {
     const saved = safeResumeLocation(localStorage.getItem(key), prefix);
     const current = safeResumeLocation(window.location.href, prefix);
 
-    if (
-      saved &&
-      current === prefix &&
-      saved !== prefix
-    ) {
+    if (saved && current === prefix && saved !== prefix) {
       window.location.replace(saved);
       return;
     }
