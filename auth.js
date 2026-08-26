@@ -13,7 +13,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAK9lu94kkE6xH9e7qK6RXibFWJqCUvArM",
+  apiKey: "__FIREBASE_WEB_API_KEY__",
   authDomain: "gabo-service.firebaseapp.com",
   projectId: "gabo-service",
   storageBucket: "gabo-service.firebasestorage.app",
