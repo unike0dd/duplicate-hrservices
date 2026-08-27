@@ -60,7 +60,7 @@ html[data-theme="dark"]{color-scheme:dark}html[data-theme="dark"] .auth-side{bac
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 7px 18px rgba(14,48,41,.14);
 }
 .auth-form-wrap form{padding-inline:4px}
-.auth-form-wrap form>label,.name-field label{color:#30443d;font-weight:800}
+.auth-form-wrap form>label,.name-field label,.account-type-field label{color:#30443d;font-weight:800}
 .back-link{
   display:inline-flex;
   align-items:center;
@@ -121,12 +121,16 @@ html[data-theme="dark"] .auth-divider::before,
 html[data-theme="dark"] .auth-divider::after{background:#647682!important}
 html[data-theme="dark"] .auth-form-wrap input[type="email"],
 html[data-theme="dark"] .auth-form-wrap input[type="password"],
-html[data-theme="dark"] .auth-form-wrap input[type="text"]{
+html[data-theme="dark"] .auth-form-wrap input[type="text"],
+html[data-theme="dark"] .auth-form-wrap select{
   background:#111d25!important;
   border-color:#687d89!important;
   color:#f8fbfa!important;
   caret-color:#f1bd4d;
 }
+.account-type-field{display:grid;gap:8px;margin-bottom:16px}
+.account-type-field select{width:100%;min-height:48px;padding:0 12px;border:1px solid #cfc2af;border-radius:9px;background:#fffdf8;color:#30443d}
+.account-type-field select:focus-visible{outline:3px solid rgba(214,161,60,.3);outline-offset:2px}
 html[data-theme="dark"] .auth-form-wrap input::placeholder{color:#aebdc5!important;opacity:1}
 html[data-theme="dark"] .account-recovery a{color:#8fd3ef!important}
 html[data-theme="dark"] .back-link{
@@ -184,6 +188,18 @@ html[data-theme="dark"] .ui-toggle{color:#f6faf8!important}
             <div class="name-field" id="name-field" hidden>
               <label for="full-name">Full name</label>
               <input id="full-name" name="name" type="text" autocomplete="name">
+            </div>
+
+            <div class="account-type-field" id="account-type-field">
+              <label for="account-type">Account type</label>
+              <select id="account-type" name="account-type" required>
+                <option value="">Select your workspace</option>
+                <option value="consumer">Talent / Consumer</option>
+                <option value="freelance">Freelancers</option>
+                <option value="independentHR">Independent HR</option>
+                <option value="hrpro">HR Professional</option>
+                <option value="smb">Growing SMBs</option>
+              </select>
             </div>
 
             <label for="email">Email address</label>
