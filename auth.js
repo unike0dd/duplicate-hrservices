@@ -4,6 +4,7 @@ import {
   browserSessionPersistence,
   createUserWithEmailAndPassword,
   getAuth,
+  getIdTokenResult,
   sendEmailVerification,
   sendPasswordResetEmail,
   setPersistence,
@@ -399,6 +400,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!credential.user.emailVerified) {
         await sendVerificationForUser(credential.user);
+        return;
+      }
+
+      let claims;
+      try {
+        claims = (await getIdTokenResult(credential.user, true)).claims;
+      } catch (authorizationError) {
+        console.error("Workspace authorization check failed.", authorizationError);
+        await signOut(auth);
+        setStatus(
+          "We verified your credentials, but workspace authorization is temporarily unavailable. Please try again.",
+          true,
+        );
+        return;
+      }
+
+      if (
+        claims.account_type !== accountType.value ||
+        claims.account_status !== "active"
+      ) {
+        await signOut(auth);
+        setStatus(
+          "Your email is verified, but this account has not yet been activated for the selected workspace.",
+          true,
+        );
         return;
       }
 
