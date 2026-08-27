@@ -87,13 +87,17 @@ function safeDashboardReturnUrl(value, destination) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
-  const destination = dashboards[params.get("dashboard")];
+  const destinationKey = params.get("dashboard");
+  const destination = dashboards[destinationKey];
   const returnUrl = safeDashboardReturnUrl(params.get("returnTo"), destination);
+  const redirectReason = params.get("reason");
   const form = document.querySelector("#auth-form");
   const signinTab = document.querySelector("#signin-tab");
   const signupTab = document.querySelector("#signup-tab");
   const nameField = document.querySelector("#name-field");
   const fullName = document.querySelector("#full-name");
+  const accountTypeField = document.querySelector("#account-type-field");
+  const accountType = document.querySelector("#account-type");
   const email = document.querySelector("#email");
   const password = document.querySelector("#password");
   const remember = form?.querySelector('input[name="remember"]');
@@ -116,6 +120,8 @@ document.addEventListener("DOMContentLoaded", () => {
     !signupTab ||
     !nameField ||
     !fullName ||
+    !accountTypeField ||
+    !accountType ||
     !email ||
     !password ||
     !submitButton ||
@@ -143,6 +149,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (destination) {
+    accountType.value = destinationKey;
+    accountType.required = false;
+    accountTypeField.hidden = true;
     document.querySelector("#dashboard-name").textContent = destination.name;
     document.querySelector("#dashboard-destination").hidden = false;
     document.title = `Sign in to ${destination.name} | Gabo Services`;
@@ -155,12 +164,17 @@ document.addEventListener("DOMContentLoaded", () => {
     email.readOnly = busy;
     password.readOnly = busy;
     fullName.readOnly = busy;
+    accountType.disabled = busy || Boolean(destination);
     submitButton.setAttribute("aria-busy", String(busy));
   }
 
   function setStatus(message, isError = false) {
     formNote.textContent = message;
     formNote.dataset.status = isError ? "error" : "info";
+  }
+
+  function selectedDestination() {
+    return destination || dashboards[accountType.value] || null;
   }
 
   function setMode(nextMode, focusPanel = false) {
@@ -196,9 +210,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus(
       isSignup
         ? PASSWORD_REQUIREMENTS
-        : destination
-          ? `You will continue to ${destination.name} after signing in.`
-          : "You can choose a dashboard after accessing your account.",
+        : selectedDestination()
+          ? `You will continue to ${selectedDestination().name} after signing in.`
+          : "Select the account workspace assigned to this email address.",
     );
 
     if (focusPanel) {
@@ -269,6 +283,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const address = email.value.trim().toLowerCase();
     const secret = password.value;
+    const activeDestination = selectedDestination();
+
+    if (!activeDestination) {
+      setStatus("Select the account workspace assigned to this email address.", true);
+      accountType.focus();
+      return;
+    }
 
     if (mode === "signup" && !passwordIsValid(secret)) {
       setStatus(PASSWORD_REQUIREMENTS, true);
@@ -296,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.reset();
         setMode("signin");
         setStatus(
-          "Account created. Check your inbox and verify your email before signing in.",
+          "Account created. Check your inbox, verify your email, and wait for workspace activation before signing in.",
         );
         return;
       }
@@ -318,11 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      if (destination) {
-        window.location.assign(returnUrl || destination.url);
-        return;
-      }
-      window.location.assign("index.html#plans");
+      window.location.assign(returnUrl || activeDestination.url);
     } catch (error) {
       console.error("Authentication request failed.", error);
       setStatus(
@@ -337,5 +354,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  accountType.addEventListener("change", () => setMode(mode));
+
   setMode(mode);
+
+  const reasonMessages = {
+    "account-not-authorized":
+      "Your credentials are valid, but this account has not yet been activated for the selected workspace.",
+    "email-verification-required":
+      "Verify your email address before accessing this workspace.",
+    "authorization-unavailable":
+      "Account authorization is temporarily unavailable. Please try again.",
+    "authentication-required":
+      "Sign in to continue to the selected workspace.",
+    "signed-out":
+      "You have signed out securely.",
+  };
+  if (redirectReason && reasonMessages[redirectReason]) {
+    setStatus(reasonMessages[redirectReason], redirectReason !== "signed-out");
+  }
 });
