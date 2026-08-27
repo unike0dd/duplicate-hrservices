@@ -53,7 +53,6 @@ jobs:
           deployment_sources=(
             "_site/auth.js"
             "_site/firebase-client.js"
-            "_site/email-action/script.js"
           )
 
           for source in "${deployment_sources[@]}"; do
