@@ -1,0 +1,16 @@
+GABO SERVICES
+Secure account confirmation
+
+Hello {{DISPLAY_NAME}},
+
+Please confirm this email address to continue setting up your Consumer workspace. This verification protects your account and professional information.
+
+Verify your email:
+{{VERIFICATION_URL}}
+
+If you did not create this account, you can safely ignore this message.
+
+Gabo Services will never ask for your password through an email verification link.
+
+© {{CURRENT_YEAR}} Gabo Services
+Automated message from no-reply@gabo.services
