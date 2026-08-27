@@ -331,10 +331,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const credential = await signInWithEmailAndPassword(auth, address, secret);
 
       if (!credential.user.emailVerified) {
+        try {
+          await sendEmailVerification(credential.user, {
+            url: verificationContinueUrl(),
+            handleCodeInApp: false,
+          });
+        } catch (verificationError) {
+          console.error(
+            "Email-verification resend failed.",
+            verificationError,
+          );
+          await signOut(auth);
+          setStatus(
+            "We could not resend the verification email right now. Wait a few minutes and try signing in again.",
+            true,
+          );
+          return;
+        }
+
         await signOut(auth);
         setStatus(
-          "Verify your email address before accessing a workspace.",
-          true,
+          "Verification email sent again. Check your Inbox, Spam, Junk, and Promotions folders, then use the verification link before signing in.",
         );
         return;
       }
