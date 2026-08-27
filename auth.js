@@ -111,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const authDivider = document.querySelector("#auth-divider");
   const accountRecovery = document.querySelector("#account-recovery");
   const forgotPassword = document.querySelector("#forgot-password");
+  const resendVerification = document.querySelector("#resend-verification");
   let mode = params.get("mode") === "signup" ? "signup" : "signin";
   let auth;
 
@@ -133,7 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
     !authProviders ||
     !authDivider ||
     !accountRecovery ||
-    !forgotPassword
+    !forgotPassword ||
+    !resendVerification
   ) {
     return;
   }
@@ -165,12 +167,43 @@ document.addEventListener("DOMContentLoaded", () => {
     password.readOnly = busy;
     fullName.readOnly = busy;
     accountType.disabled = busy || Boolean(destination);
+    resendVerification.disabled = busy;
     submitButton.setAttribute("aria-busy", String(busy));
   }
 
   function setStatus(message, isError = false) {
     formNote.textContent = message;
     formNote.dataset.status = isError ? "error" : "info";
+  }
+
+  async function sendVerificationForUser(user) {
+    if (user.emailVerified) {
+      await signOut(auth);
+      setStatus(
+        "This email address is already verified. You may sign in normally.",
+      );
+      return;
+    }
+
+    try {
+      await sendEmailVerification(user, {
+        url: verificationContinueUrl(),
+        handleCodeInApp: false,
+      });
+    } catch (verificationError) {
+      console.error("Email-verification resend failed.", verificationError);
+      await signOut(auth);
+      setStatus(
+        "We could not resend the verification email right now. Wait a few minutes and try again.",
+        true,
+      );
+      return;
+    }
+
+    await signOut(auth);
+    setStatus(
+      "Verification email sent again. Check your Inbox, Spam, Junk, and Promotions folders, then use the verification link before signing in.",
+    );
   }
 
   function selectedDestination() {
@@ -249,6 +282,40 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       email.focus();
     });
+  });
+
+  resendVerification.addEventListener("click", async () => {
+    const address = email.value.trim().toLowerCase();
+    const secret = password.value;
+
+    if (!address || !email.checkValidity() || !secret) {
+      setStatus(
+        "Enter your email and password before requesting another verification email.",
+        true,
+      );
+      (address && email.checkValidity() ? password : email).focus();
+      return;
+    }
+
+    setBusy(true);
+    try {
+      await setPersistence(auth, browserSessionPersistence);
+      const credential = await signInWithEmailAndPassword(
+        auth,
+        address,
+        secret,
+      );
+      await sendVerificationForUser(credential.user);
+    } catch (error) {
+      console.error("Verification resend authentication failed.", error);
+      setStatus(
+        "We could not verify the account credentials or resend the email. Check the information and try again.",
+        true,
+      );
+    } finally {
+      setBusy(false);
+      password.value = "";
+    }
   });
 
   forgotPassword.addEventListener("click", async (event) => {
@@ -331,28 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const credential = await signInWithEmailAndPassword(auth, address, secret);
 
       if (!credential.user.emailVerified) {
-        try {
-          await sendEmailVerification(credential.user, {
-            url: verificationContinueUrl(),
-            handleCodeInApp: false,
-          });
-        } catch (verificationError) {
-          console.error(
-            "Email-verification resend failed.",
-            verificationError,
-          );
-          await signOut(auth);
-          setStatus(
-            "We could not resend the verification email right now. Wait a few minutes and try signing in again.",
-            true,
-          );
-          return;
-        }
-
-        await signOut(auth);
-        setStatus(
-          "Verification email sent again. Check your Inbox, Spam, Junk, and Promotions folders, then use the verification link before signing in.",
-        );
+        await sendVerificationForUser(credential.user);
         return;
       }
 
