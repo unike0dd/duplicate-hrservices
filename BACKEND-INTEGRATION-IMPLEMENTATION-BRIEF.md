@@ -265,6 +265,26 @@ Test at minimum:
 
 Stop release for any cross-tenant exposure, authentication or authorization bypass, credential leakage, consent bypass, hidden-PII exposure, unsafe file access, incomplete audit/mutation, critical restore failure, or unresolved critical/high security finding.
 
+
+## 14A. Staff RBAC, reauthentication, approval, lifecycle, notification, and audit
+
+Apply this section to `duplicate-hrservices`, `smb`, and `hrpro`. The browser controls are interface prototypes only; the backend is the sole authority.
+
+1. Every staff account has a master lifecycle state: `invited`, `active`, `suspended`, `deactivated`, `deletion_pending`, or `deleted`. Provide an individual Active/Deactivated toggle and, where authorized, a bulk staff activation control. Bulk actions require step-up reauthentication, scope preview, owner confirmation, rate limiting, idempotency, and complete per-account results.
+2. Supervisors and lower staff use versioned preset RBAC templates. Each permission is shown as an ON/OFF toggle, but every change is submitted to and validated by the backend. A client-side toggle never grants access.
+3. Management Admin, VP, IT SuperUser, security-administration, billing-administration, payroll-administration, and equivalent privileged roles require manual assignment by the SMB Owner. Do not provide an unrestricted global superuser. IT SuperUser access must be tenant-scoped, just-in-time where possible, purpose-bound, MFA-protected, short-lived for elevation, and independently audited.
+4. The approver must reauthenticate with the approver's own account using phishing-resistant MFA/passkey when available, or current password plus MFA. Never request, store, transmit, display, log, or email the SMB Owner's password. Never allow one person to enter or share another person's password.
+5. Email identifies the authenticated account but does not authorize the action. The backend binds the fresh reauthentication result to the authenticated session, actor UID, tenant, requested change, target user, nonce, expiry, and expected record version.
+6. Promotions, senior-role assignments, privilege increases, and sensitive department transfers require owner-final approval. Management may submit or preliminarily approve a request but cannot make the ultimate approval effective. The requester must not approve their own promotion or privilege increase.
+7. Use a two-stage state machine: `draft/requested → management_reviewed (optional) → owner_approved → applied`, with `rejected`, `cancelled`, and `expired` terminal paths. Revalidate separation of duties, actor authority, target eligibility, subscription entitlement, and record version when applying.
+8. After activation, deactivation, role/permission change, promotion request, approval, rejection, or deletion request, send privacy-safe notifications to the affected staff member and SMB Owner. Do not include passwords, tokens, sensitive RBAC detail, or privileged action links in email. Email delivery failure must not roll back a valid authorization decision; record it and retry safely.
+9. Write an append-only audit event for every requested, approved, rejected, applied, failed, or reversed change: tenant, actor, target, action, before/after permission-set identifiers, reason, approval chain, authentication assurance level, timestamp, request ID, IP/risk metadata as lawful, result, and notification delivery status. Never record credentials or authentication secrets.
+10. Every end user record must expose Deactivate/Activate and a separately protected Delete action according to authorization. Deactivation must immediately revoke sessions, refresh tokens, active elevation, API tokens, and future access without destroying records.
+11. Delete opens a modal that names the target, explains impact, recommends deactivation when appropriate, and requires an explicit confirmation such as typing `DELETE` plus a final Delete button. Permanent deletion requires fresh reauthentication, authorization, owner approval when applicable, dependency and legal-retention checks, delayed/recoverable execution where lawful, audit evidence, and user notification.
+12. Authorization changes must invalidate affected sessions and permission caches promptly. Test stale tokens, concurrent approvals, replay, self-approval, horizontal/vertical escalation, bulk-action partial failure, owner lockout prevention, last-owner deletion, notification failure, and audit completeness.
+13. `hrpro` receives only the staff-management capabilities allowed by its Premium entitlement. `smb` receives the complete tenant-scoped feature set. `duplicate-hrservices` performs secure sign-in and step-up reauthentication but never decides RBAC or approval outcomes.
+14. UI wording must distinguish Authentication (proving identity), Authorization (permission to act), Approval (governance decision), Deactivation (reversible access stop), and Deletion (controlled data-lifecycle action).
+
 ## 15. Definition of backend completion
 
 The backend is not "connected and working" until all of the following are true:
