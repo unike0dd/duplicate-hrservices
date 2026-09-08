@@ -42,8 +42,16 @@ html[data-theme="dark"] img{filter:brightness(.88)}
 @media(max-width:720px){.ui-preferences{position:fixed;right:10px;bottom:74px}.ui-toggle{height:38px;background:#fff;color:#1b2b38}}
 
 /* Landing navigation: coordinated surfaces and readable labels in both themes. */
-.site-header { gap: clamp(16px, 2vw, 32px); flex-wrap: wrap; }
-.site-header .desktop-nav { gap: clamp(16px, 1.8vw, 28px); flex-wrap: wrap; }
+.site-header {
+  gap: 20px;
+  flex-wrap: nowrap;
+  min-height: 96px;
+  padding: 18px clamp(22px, 2.4vw, 40px);
+}
+.site-header .brand { flex-shrink: 0; font-size: clamp(31px, 2.6vw, 40px); }
+.site-header .desktop-nav { gap: clamp(14px, 1.4vw, 24px); flex-wrap: nowrap; font-size: 15px; }
+.site-header .header-cta { min-height: 48px; padding-inline: 18px; gap: 14px; font-size: 15px; }
+.site-header .mobile-menu nav { max-width: calc(100vw - 44px); }
 .site-header .desktop-nav a,
 .site-header .header-cta,
 .site-header .mobile-menu summary { white-space: nowrap; overflow-wrap: normal; flex-shrink: 0; }
@@ -73,12 +81,17 @@ html[data-theme="dark"] .hero h1 { color: #ecf2f5; }
 html[data-theme="dark"] .hero h1 span,
 html[data-theme="dark"] .hero .eyebrow,
 html[data-theme="dark"] .hero .text-action { color: #9ecfe0; }
-@media (min-width:1181px) {
-  .site-header .desktop-nav { flex-basis: 100%; order: 2; }
-  .site-header .header-cta { margin-left: auto; }
+/* Switch to the compact menu before translated labels crowd the header. */
+@media (max-width:1300px) {
+  html[lang="es"] .site-header .desktop-nav { display: none; }
+  html[lang="es"] .site-header .mobile-menu { display: block; }
+  html[lang="es"] .site-header .header-cta { margin-left: auto; }
 }
-@media (min-width:1500px) {
-  .site-header .desktop-nav { flex-basis: auto; order: 0; }
+@media (max-width:760px) {
+  .site-header { min-height: 82px; gap: 12px; }
+}
+@media (min-width:721px) and (max-width:900px) {
+  .site-header .header-cta { display: none; }
 }
 </style>
 </head>
@@ -121,6 +134,7 @@ html[data-theme="dark"] .hero .text-action { color: #9ecfe0; }
           <a href="#audiences">Who it serves</a>
           <a href="#workspaces">Workspaces</a>
           <a href="#plans">Plans</a>
+          <a href="#about">About</a>
           <a href="auth.html">Sign in</a>
           <a href="auth.html?mode=signup">Create account</a>
           <a href="#plans">View dashboards</a>
