@@ -40,6 +40,46 @@ html[data-theme="dark"] .insight{background:linear-gradient(135deg,#35271f,#1d2a
 html[data-theme="dark"] .task,html[data-theme="dark"] .data-row,html[data-theme="dark"] .table-head{border-color:#33444f}
 html[data-theme="dark"] img{filter:brightness(.88)}
 @media(max-width:720px){.ui-preferences{position:fixed;right:10px;bottom:74px}.ui-toggle{height:38px;background:#fff;color:#1b2b38}}
+
+/* Landing navigation: coordinated surfaces and readable labels in both themes. */
+.site-header { gap: clamp(16px, 2vw, 32px); flex-wrap: wrap; }
+.site-header .desktop-nav { gap: clamp(16px, 1.8vw, 28px); flex-wrap: wrap; }
+.site-header .desktop-nav a,
+.site-header .header-cta,
+.site-header .mobile-menu summary { white-space: nowrap; overflow-wrap: normal; flex-shrink: 0; }
+.site-header .ui-preferences { flex-shrink: 0; }
+.site-header .desktop-nav a:focus-visible { border-bottom-color: var(--gold); }
+html[data-theme="dark"] .site-header {
+  background: #1d2a34;
+  border-color: #3a4b58;
+  box-shadow: 0 1px 0 rgba(255,255,255,.06);
+}
+html[data-theme="dark"] .site-header .brand,
+html[data-theme="dark"] .site-header .desktop-nav a { color: #ecf2f5; }
+html[data-theme="dark"] .site-header .desktop-nav a:hover,
+html[data-theme="dark"] .site-header .desktop-nav a:focus-visible { color: #f2c96f; }
+html[data-theme="dark"] .site-header .mobile-menu summary,
+html[data-theme="dark"] .site-header .mobile-menu nav {
+  background: #1d2a34;
+  color: #ecf2f5;
+  border-color: #3a4b58;
+}
+html[data-theme="dark"] .site-header .mobile-menu nav a:hover,
+html[data-theme="dark"] .site-header .mobile-menu nav a:focus-visible {
+  background: #30434f;
+  color: #f2c96f;
+}
+html[data-theme="dark"] .hero h1 { color: #ecf2f5; }
+html[data-theme="dark"] .hero h1 span,
+html[data-theme="dark"] .hero .eyebrow,
+html[data-theme="dark"] .hero .text-action { color: #9ecfe0; }
+@media (min-width:1181px) {
+  .site-header .desktop-nav { flex-basis: 100%; order: 2; }
+  .site-header .header-cta { margin-left: auto; }
+}
+@media (min-width:1500px) {
+  .site-header .desktop-nav { flex-basis: auto; order: 0; }
+}
 </style>
 </head>
 
