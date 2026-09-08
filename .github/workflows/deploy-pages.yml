@@ -1,4 +1,4 @@
-name: Deploy secured static site to GitHub Pages
+name: Deploy static site to GitHub Pages
 
 on:
   push:
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Build and deploy secured Pages artifact
+    name: Build and deploy Pages artifact
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:
@@ -28,19 +28,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Validate Firebase deployment secret
-        env:
-          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
-        shell: bash
-        run: |
-          if [[ -z "${FIREBASE_WEB_API_KEY}" ]]; then
-            echo "Missing github-pages environment secret FIREBASE_WEB_API_KEY." >&2
-            exit 1
-          fi
-
       - name: Prepare deployment artifact
-        env:
-          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
         shell: bash
         run: |
           mkdir -p _site
@@ -49,26 +37,6 @@ jobs:
             ! -name '.github' \
             ! -name '_site' \
             -exec cp -R {} _site/ \;
-
-          deployment_sources=(
-            "_site/auth.js"
-            "_site/firebase-client.js"
-          )
-
-          for source in "${deployment_sources[@]}"; do
-            if [[ "$(grep -oF '__FIREBASE_WEB_API_KEY__' "${source}" | wc -l)" -ne 1 ]]; then
-              echo "Expected exactly one Firebase API-key placeholder in ${source}." >&2
-              exit 1
-            fi
-          done
-
-          perl -0pi -e 's/__FIREBASE_WEB_API_KEY__/$ENV{FIREBASE_WEB_API_KEY}/g' \
-            "${deployment_sources[@]}"
-
-          if grep -Fq '__FIREBASE_WEB_API_KEY__' "${deployment_sources[@]}"; then
-            echo "A Firebase API-key placeholder was not replaced." >&2
-            exit 1
-          fi
 
           touch _site/.nojekyll
 
