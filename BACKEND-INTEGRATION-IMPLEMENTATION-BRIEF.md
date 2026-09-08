@@ -44,7 +44,7 @@ Required rules:
 5. Every backend request must evaluate authenticated identity, immutable account assignment, tenant context, membership, role, permission, entitlement, resource ownership, field scope, workflow state, purpose, and current consent.
 6. Authorization must be deny-by-default and server-authoritative. UI hiding is not authorization.
 7. A tenant user must never search, read, infer, export, cache, or mutate another tenant's private records.
-8. Cloudflare or another edge may provide TLS, WAF, DDoS protection, bot control, and rate limiting, but it must never replace application authorization.
+8. An edge service may provide TLS, WAF, DDoS protection, bot control, and rate limiting, but it must never replace application authorization.
 
 The browser will necessarily know the public API origin and send authenticated requests to it. "No browser exposure" means that secrets, internal topology, raw databases, unauthorized records, hidden PII, privileged policies, and cross-tenant data are never exposed—not that the public API address is invisible.
 
